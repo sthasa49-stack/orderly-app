@@ -552,13 +552,30 @@ async function addMenuItem(){
   const description=document.getElementById('itemDesc').value.trim();
   const price=parseFloat(document.getElementById('itemPrice').value);
   const category=document.getElementById('itemCategory').value;
-  if(!name||!price){showToast('Please enter item name and price');return;}
-  await sb.from('menu_items').insert({restaurant_id:currentRestaurant.id,name,description,price,category});
+  if(!name){showToast('Please enter an item name');return;}
+  if(!price||isNaN(price)){showToast('Please enter a valid price');return;}
+  if(!currentRestaurant||!currentRestaurant.id){showToast('Not logged in. Please refresh.');return;}
+  const saveBtn=document.querySelector('.btn-save');
+  saveBtn.textContent='Saving...';saveBtn.disabled=true;
+  const {data,error}=await sb.from('menu_items').insert({
+    restaurant_id:currentRestaurant.id,
+    name,
+    description:description||null,
+    price,
+    category,
+    available:true
+  }).select();
+  saveBtn.textContent='Save item';saveBtn.disabled=false;
+  if(error){
+    console.error('Insert error:',error);
+    showToast('Error: '+error.message,5000);
+    return;
+  }
   document.getElementById('addMenuModal').style.display='none';
   document.getElementById('itemName').value='';
   document.getElementById('itemDesc').value='';
   document.getElementById('itemPrice').value='';
-  showToast('Menu item added');
+  showToast('Menu item added successfully');
   loadMenu();
 }
 
