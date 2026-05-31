@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu — Orderly</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brand:#0F1117;--accent:#E94560;--green:#22C55E;--amber:#F5A623;
+  --surface:#F7F8FA;--white:#FFFFFF;--border:#E5E7EB;--muted:#6B7280;
+  --light:#F3F4F6;--text:#0F1117;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;padding-bottom:120px}
+
+header{background:var(--brand);padding:1.5rem;text-align:center;position:sticky;top:0;z-index:100}
+.header-logo{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:0.35rem}
+.header-name{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#fff}
+.wait-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.3);color:var(--amber);padding:5px 14px;border-radius:20px;font-size:0.72rem;font-weight:500;margin-top:0.75rem}
+.wait-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.categories{display:flex;gap:0.5rem;padding:1rem 1.25rem;overflow-x:auto;background:var(--white);border-bottom:1px solid var(--border);scrollbar-width:none}
+.categories::-webkit-scrollbar{display:none}
+.cat-btn{flex-shrink:0;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all 0.18s;font-family:'DM Sans',sans-serif}
+.cat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.menu-section{padding:1.25rem}
+.section-title{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:1rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
+.items-grid{display:flex;flex-direction:column;gap:0.75rem}
+.item-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:border-color 0.2s;cursor:pointer}
+.item-card:hover{border-color:var(--accent)}
+.item-card.unavailable{opacity:0.5;pointer-events:none}
+.item-info{flex:1}
+.item-name{font-weight:500;font-size:0.92rem;margin-bottom:3px}
+.item-desc{font-size:0.78rem;color:var(--muted);line-height:1.6;margin-bottom:6px}
+.item-price{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent)}
+.item-add{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.18s;flex-shrink:0}
+.item-add:hover{background:#c73650}
+.item-counter{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.counter-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:transparent;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.counter-btn:hover{border-color:var(--accent);color:var(--accent)}
+.counter-num{font-weight:600;font-size:0.88rem;min-width:16px;text-align:center}
+
+/* CART */
+.cart-bar{position:fixed;bottom:1.25rem;left:1.25rem;right:1.25rem;background:var(--brand);color:#fff;border-radius:14px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 30px rgba(0,0,0,0.25);transform:translateY(200px);opacity:0;transition:all 0.3s;z-index:200}
+.cart-bar.visible{transform:translateY(0);opacity:1}
+.cart-count{font-size:0.78rem;color:rgba(255,255,255,0.6)}
+.cart-total{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.cart-btn{background:var(--accent);color:#fff;border:none;padding:0.6rem 1.25rem;border-radius:9px;font-size:0.82rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s}
+.cart-btn:hover{background:#c73650}
+
+/* ORDER MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.order-modal{background:var(--white);border-radius:20px 20px 0 0;padding:1.75rem 1.25rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 1.5rem}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.5rem}
+.cart-item-row{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.85rem}
+.cart-item-name{font-weight:500}
+.cart-item-sub{font-size:0.75rem;color:var(--muted)}
+.cart-item-price{font-weight:500}
+.order-form{margin-top:1.25rem}
+.form-group{margin-bottom:1rem}
+.form-label{display:block;font-size:0.75rem;font-weight:500;color:var(--muted);margin-bottom:5px}
+.form-input{width:100%;padding:0.7rem 0.9rem;border:1px solid var(--border);border-radius:9px;font-size:0.85rem;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color 0.18s}
+.form-input:focus{border-color:var(--accent)}
+.order-total{display:flex;justify-content:space-between;font-size:0.92rem;font-weight:600;padding:1rem 0;border-top:1px solid var(--border);margin-top:0.5rem}
+.btn-place{width:100%;padding:0.9rem;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:0.9rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:1rem;transition:background 0.2s}
+.btn-place:hover{background:#c73650}
+.btn-place:disabled{opacity:0.6;cursor:not-allowed}
+.btn-close{width:100%;padding:0.75rem;background:var(--light);color:var(--muted);border:none;border-radius:12px;font-size:0.85rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:0.5rem}
+
+/* SUCCESS */
+.success-screen{display:none;position:fixed;inset:0;background:var(--brand);z-index:1000;align-items:center;justify-content:center;text-align:center;padding:2rem;flex-direction:column}
+.success-icon{width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,0.15);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.5rem}
+.success-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:0.75rem}
+.success-sub{font-size:0.9rem;color:rgba(255,255,255,0.55);line-height:1.8;max-width:320px;margin:0 auto 2rem}
+.success-wait{background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.25);border-radius:12px;padding:1.25rem;margin-bottom:2rem;max-width:280px;margin-left:auto;margin-right:auto}
+.success-wait-num{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--amber)}
+.success-wait-label{font-size:0.78rem;color:rgba(255,255,255,0.45);margin-top:4px}
+.btn-back{background:var(--accent);color:#fff;border:none;padding:0.85rem 2rem;border-radius:12px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+.loading{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.error-screen{text-align:center;padding:4rem 2rem}
+.error-screen h2{font-family:'Syne',sans-serif;font-size:1.4rem;margin-bottom:0.75rem}
+.error-screen p{color:var(--muted);font-size:0.85rem}
+</style>
+</head>
+<body>
+
+<div id="loadingScreen" class="loading">
+  <div style="font-size:2rem;margin-bottom:1rem">🍽️</div>
+  <div>Loading menu...</div>
+</div>
+
+<div id="errorScreen" class="error-screen" style="display:none">
+  <div style="font-size:3rem;margin-bottom:1rem">😕</div>
+  <h2>Restaurant not found</h2>
+  <p>This menu link may be invalid or the restaurant is no longer active.</p>
+</div>
+
+<div id="appContent" style="display:none">
+  <header>
+    <div class="header-logo">Powered by Orderly</div>
+    <div class="header-name" id="restName">Restaurant</div>
+    <div class="wait-badge"><div class="wait-dot"></div><span id="waitTime">Calculating wait time...</span></div>
+  </header>
+
+  <div class="categories" id="categoriesBar"></div>
+
+  <div class="menu-section">
+    <div id="menuContent"></div>
+  </div>
+</div>
+
+<div class="cart-bar" id="cartBar">
+  <div>
+    <div class="cart-count" id="cartCount">0 items</div>
+    <div class="cart-total" id="cartTotal">$0.00</div>
+  </div>
+  <button class="cart-btn" onclick="openOrderModal()">View order →</button>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="orderModal" style="display:none">
+  <div class="order-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Your order</div>
+    <div id="cartItemsList"></div>
+    <div class="order-total"><span>Total</span><span id="modalTotal">$0.00</span></div>
+    <div class="order-form">
+      <div class="form-group">
+        <label class="form-label">Your name (optional)</label>
+        <input class="form-input" type="text" id="customerName" placeholder="e.g. John">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Table number (optional)</label>
+        <input class="form-input" type="text" id="tableNumber" placeholder="e.g. 4">
+      </div>
+    </div>
+    <button class="btn-place" id="placeOrderBtn" onclick="placeOrder()">Place order</button>
+    <button class="btn-close" onclick="document.getElementById('orderModal').style.display='none'">Continue browsing</button>
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✓</div>
+  <div class="success-title">Order placed!</div>
+  <p class="success-sub">Your order has been sent to the kitchen. You'll be notified when it's ready.</p>
+  <div class="success-wait">
+    <div class="success-wait-num" id="successWait">~15</div>
+    <div class="success-wait-label">estimated minutes wait</div>
+  </div>
+  <button class="btn-back" onclick="resetOrder()">Order more</button>
+</div>
+
+<script>
+const SUPABASE_URL='https://nnujtfziynkecnmyoqwj.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5udWp0ZnppeW5rZWNubXlvcXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMDk4MTIsImV4cCI6MjA5NTc4NTgxMn0.3CrBL09oLUIk6wtLiPJQb2LN2Kl4wz0I4kENGE4hM8U';
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let restaurant=null;
+let menuItems=[];
+let cart={};
+let activeCategory='All';
+
+function getSlugFromUrl(){
+  const path=window.location.pathname;
+  const parts=path.split('/');
+  return parts[parts.length-1]||new URLSearchParams(window.location.search).get('slug');
+}
+
+async function init(){
+  const slug=getSlugFromUrl()||new URLSearchParams(window.location.search).get('r');
+  if(!slug){showError();return;}
+  const {data:rest}=await sb.from('restaurants').select('*').eq('slug',slug).single();
+  if(!rest){showError();return;}
+  restaurant=rest;
+  document.title=rest.name+' — Menu';
+  document.getElementById('restName').textContent=rest.name;
+  await loadMenu();
+  await updateWaitTime();
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('appContent').style.display='block';
+}
+
+function showError(){
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('errorScreen').style.display='block';
+}
+
+async function loadMenu(){
+  const {data}=await sb.from('menu_items').select('*').eq('restaurant_id',restaurant.id).order('category');
+  menuItems=data||[];
+  renderCategories();
+  renderMenu();
+}
+
+async function updateWaitTime(){
+  const {data}=await sb.from('orders').select('id').eq('restaurant_id',restaurant.id).in('status',['new','preparing']);
+  const active=(data||[]).length;
+  const wait=Math.max(10,active*8);
+  const el=document.getElementById('waitTime');
+  if(active===0){el.textContent='No wait — order now!';document.querySelector('.wait-dot').style.background='#22C55E';}
+  else if(active<=3){el.textContent='~'+wait+' min wait — low wait';}
+  else{el.textContent='~'+wait+' min wait — busy right now';}
+  document.getElementById('successWait').textContent='~'+wait;
+}
+
+function renderCategories(){
+  const cats=['All',...new Set(menuItems.map(i=>i.category))];
+  const bar=document.getElementById('categoriesBar');
+  bar.innerHTML=cats.map(c=>`<button class="cat-btn${c===activeCategory?' active':''}" onclick="filterCategory('${c}')">${c}</button>`).join('');
+}
+
+function filterCategory(cat){
+  activeCategory=cat;
+  renderCategories();
+  renderMenu();
+}
+
+function renderMenu(){
+  const filtered=activeCategory==='All'?menuItems:menuItems.filter(i=>i.category===activeCategory);
+  const grouped={};
+  filtered.forEach(i=>{if(!grouped[i.category])grouped[i.category]=[];grouped[i.category].push(i);});
+  const content=document.getElementById('menuContent');
+  if(!filtered.length){content.innerHTML='<div style="text-align:center;padding:3rem;color:var(--muted)">No items in this category</div>';return;}
+  content.innerHTML=Object.entries(grouped).map(([cat,items])=>`
+    <div class="section-title">${cat}</div>
+    <div class="items-grid">
+      ${items.map(item=>renderItem(item)).join('')}
+    </div>
+  `).join('');
+}
+
+function renderItem(item){
+  const qty=cart[item.id]||0;
+  return `<div class="item-card${!item.available?' unavailable':''}">
+    <div class="item-info">
+      <div class="item-name">${item.name}</div>
+      ${item.description?`<div class="item-desc">${item.description}</div>`:''}
+      <div class="item-price">$${parseFloat(item.price).toFixed(2)}</div>
+    </div>
+    ${qty===0
+      ?`<button class="item-add" onclick="addToCart('${item.id}')">+</button>`
+      :`<div class="item-counter">
+          <button class="counter-btn" onclick="removeFromCart('${item.id}')">−</button>
+          <span class="counter-num">${qty}</span>
+          <button class="counter-btn" onclick="addToCart('${item.id}')">+</button>
+        </div>`
+    }
+  </div>`;
+}
+
+function addToCart(id){cart[id]=(cart[id]||0)+1;updateCart();renderMenu();}
+function removeFromCart(id){if(cart[id]>1)cart[id]--;else delete cart[id];updateCart();renderMenu();}
+
+function updateCart(){
+  const total=Object.entries(cart).reduce((s,[id,qty])=>{
+    const item=menuItems.find(i=>i.id===id);
+    return s+(item?item.price*qty:0);
+  },0);
+  const count=Object.values(cart).reduce((s,q)=>s+q,0);
+  document.getElementById('cartCount').textContent=count+' item'+(count!==1?'s':'');
+  document.getElementById('cartTotal').textContent='$'+total.toFixed(2);
+  const bar=document.getElementById('cartBar');
+  if(count>0)bar.classList.add('visible');else bar.classList.remove('visible');
+}
+
+function openOrderModal(){
+  const list=document.getElementById('cartItemsList');
+  const total=Object.entries(cart).reduce((s,[id,qty])=>{
+    const item=menuItems.find(i=>i.id===id);
+    return s+(item?item.price*qty:0);
+  },0);
+  list.innerHTML=Object.entries(cart).map(([id,qty])=>{
+    const item=menuItems.find(i=>i.id===id);
+    if(!item)return'';
+    return`<div class="cart-item-row">
+      <div><div class="cart-item-name">${item.name}</div><div class="cart-item-sub">x${qty}</div></div>
+      <div class="cart-item-price">$${(item.price*qty).toFixed(2)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('modalTotal').textContent='$'+total.toFixed(2);
+  document.getElementById('orderModal').style.display='flex';
+}
+
+async function placeOrder(){
+  if(!Object.keys(cart).length)return;
+  const btn=document.getElementById('placeOrderBtn');
+  btn.disabled=true;btn.textContent='Placing order...';
+  const total=Object.entries(cart).reduce((s,[id,qty])=>{
+    const item=menuItems.find(i=>i.id===id);
+    return s+(item?item.price*qty:0);
+  },0);
+  const customerName=document.getElementById('customerName').value.trim()||'Guest';
+  const tableNumber=document.getElementById('tableNumber').value.trim();
+  const {data:order,error}=await sb.from('orders').insert({
+    restaurant_id:restaurant.id,
+    customer_name:customerName,
+    table_number:tableNumber||null,
+    status:'new',
+    total:total.toFixed(2)
+  }).select().single();
+  if(error){btn.disabled=false;btn.textContent='Place order';alert('Error placing order. Please try again.');return;}
+  const orderItems=Object.entries(cart).map(([id,qty])=>{
+    const item=menuItems.find(i=>i.id===id);
+    return{order_id:order.id,menu_item_id:id,name:item.name,price:item.price,quantity:qty};
+  });
+  await sb.from('order_items').insert(orderItems);
+  document.getElementById('orderModal').style.display='none';
+  btn.disabled=false;btn.textContent='Place order';
+  await updateWaitTime();
+  const success=document.getElementById('successScreen');
+  success.style.display='flex';
+}
+
+function resetOrder(){
+  cart={};
+  updateCart();
+  renderMenu();
+  document.getElementById('successScreen').style.display='none';
+  document.getElementById('customerName').value='';
+  document.getElementById('tableNumber').value='';
+}
+
+init();
+</script>
+</body>
+</html>

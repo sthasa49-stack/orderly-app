@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orderly — Restaurant Ordering Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brand:#0F1117;--brand2:#16213E;--accent:#E94560;--accent2:#F5A623;
+  --green:#22C55E;--surface:#F7F8FA;--white:#FFFFFF;
+  --text:#0F1117;--muted:#6B7280;--border:#E5E7EB;--light:#F3F4F6;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);line-height:1.6}
+
+nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:62px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--brand);display:flex;align-items:center;gap:8px;text-decoration:none}
+.logo-dot{width:10px;height:10px;background:var(--accent);border-radius:50%}
+.nav-right{display:flex;align-items:center;gap:1rem}
+.nav-link{font-size:0.82rem;color:var(--muted);text-decoration:none;font-weight:500;transition:color 0.2s}
+.nav-link:hover{color:var(--accent)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0.55rem 1.25rem;border-radius:8px;font-size:0.82rem;font-weight:500;cursor:pointer;border:none;text-decoration:none;transition:all 0.18s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#c73650}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--brand);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--light)}
+.btn-lg{padding:0.8rem 2rem;font-size:0.9rem;border-radius:10px}
+.btn-full{width:100%;justify-content:center;padding:0.85rem}
+
+/* HERO */
+.hero{background:var(--brand);padding:5.5rem 2.5rem 4.5rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:360px;height:360px;border-radius:50%;background:rgba(233,69,96,0.07)}
+.hero::after{content:'';position:absolute;bottom:-100px;left:-60px;width:280px;height:280px;border-radius:50%;background:rgba(245,166,35,0.05)}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(233,69,96,0.12);border:1px solid rgba(233,69,96,0.25);color:#F87171;padding:5px 14px;border-radius:20px;font-size:0.72rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.5rem}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2.4rem,5.5vw,4rem);font-weight:800;color:#fff;line-height:1.08;margin-bottom:1.25rem}
+.hero h1 span{color:var(--accent)}
+.hero-sub{font-size:1rem;color:rgba(255,255,255,0.55);max-width:520px;margin:0 auto 2.5rem;font-weight:300;line-height:1.8}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:3.5rem}
+.btn-white-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.2);padding:0.8rem 2rem;font-size:0.9rem;border-radius:10px}
+.btn-white-outline:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.4)}
+.hero-stats{display:flex;justify-content:center;gap:3.5rem;border-top:1px solid rgba(255,255,255,0.07);padding-top:2.5rem;flex-wrap:wrap}
+.hero-stat-n{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:#fff}
+.hero-stat-l{font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-top:3px}
+
+/* HOW */
+.how{padding:5.5rem 2.5rem;background:var(--white);text-align:center}
+.section-label{font-size:0.68rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(1.7rem,3vw,2.5rem);font-weight:700;color:var(--brand);margin-bottom:0.75rem}
+.section-sub{font-size:0.9rem;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.8}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3.5rem;max-width:900px;margin-left:auto;margin-right:auto}
+.how-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;text-align:left;position:relative;transition:border-color 0.2s}
+.how-card:hover{border-color:var(--accent)}
+.how-num{font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;color:var(--border);position:absolute;top:1.25rem;right:1.5rem;line-height:1}
+.how-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:1.25rem}
+.how-icon.red{background:#FEE2E2}
+.how-icon.amber{background:#FEF3C7}
+.how-icon.green{background:#D1FAE5}
+.how-card h3{font-size:0.95rem;font-weight:600;color:var(--brand);margin-bottom:0.5rem}
+.how-card p{font-size:0.82rem;color:var(--muted);line-height:1.8}
+
+/* FEATURES */
+.features{padding:5.5rem 2.5rem;background:var(--surface)}
+.features-inner{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;max-width:1000px;margin:0 auto}
+.feat-list{display:flex;flex-direction:column;gap:1.25rem;margin-top:2rem}
+.feat-item{display:flex;align-items:flex-start;gap:1rem;padding:1.25rem;background:var(--white);border:1px solid var(--border);border-radius:13px;transition:border-color 0.2s}
+.feat-item:hover{border-color:var(--accent)}
+.feat-icon{width:40px;height:40px;border-radius:10px;background:var(--light);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.feat-text h4{font-size:0.88rem;font-weight:600;color:var(--brand);margin-bottom:3px}
+.feat-text p{font-size:0.78rem;color:var(--muted);line-height:1.75}
+.dashboard-mock{background:var(--brand);border-radius:18px;padding:1.25rem;border:1px solid rgba(255,255,255,0.06)}
+.mock-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem}
+.mock-dot{width:8px;height:8px;border-radius:50%}
+.mock-label{font-size:0.7rem;color:rgba(255,255,255,0.35);margin-left:4px}
+.mock-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.mock-stat{background:rgba(255,255,255,0.06);border-radius:9px;padding:10px;text-align:center}
+.mock-stat-n{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#fff}
+.mock-stat-l{font-size:0.6rem;color:rgba(255,255,255,0.35);margin-top:2px}
+.mock-orders{display:flex;flex-direction:column;gap:6px}
+.mock-order{background:rgba(255,255,255,0.05);border-radius:9px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between}
+.mock-order-n{font-size:0.72rem;font-weight:600;color:#fff}
+.mock-order-i{font-size:0.63rem;color:rgba(255,255,255,0.35)}
+.badge{font-size:0.6rem;font-weight:600;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:0.04em}
+.b-new{background:rgba(233,69,96,0.2);color:#F87171}
+.b-prep{background:rgba(245,166,35,0.2);color:#FBB040}
+.b-ready{background:rgba(34,197,94,0.2);color:#4ADE80}
+
+/* PRICING */
+.pricing{padding:5.5rem 2.5rem;background:var(--white);text-align:center}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:880px;margin:3rem auto 0}
+.price-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;text-align:left;transition:all 0.2s}
+.price-card.featured{background:var(--brand);border-color:var(--brand)}
+.price-card:not(.featured):hover{border-color:var(--accent)}
+.plan-name{font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.75rem}
+.price-card.featured .plan-name{color:rgba(255,255,255,0.45)}
+.plan-price{font-family:'Syne',sans-serif;font-size:2.3rem;font-weight:800;color:var(--brand);margin-bottom:0.25rem;line-height:1}
+.price-card.featured .plan-price{color:#fff}
+.plan-price span{font-size:0.85rem;font-weight:400;color:var(--muted)}
+.price-card.featured .plan-price span{color:rgba(255,255,255,0.4)}
+.plan-desc{font-size:0.78rem;color:var(--muted);margin:0.5rem 0 1.5rem;line-height:1.7}
+.price-card.featured .plan-desc{color:rgba(255,255,255,0.5)}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:0.6rem;margin-bottom:2rem}
+.plan-feats li{font-size:0.78rem;color:var(--text);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.price-card.featured .plan-feats li{color:rgba(255,255,255,0.75)}
+.check{color:var(--green);flex-shrink:0;margin-top:1px}
+.price-card.featured .check{color:#4ADE80}
+
+/* SIGNUP */
+.signup-section{padding:5.5rem 2.5rem;background:var(--surface)}
+.signup-inner{max-width:500px;margin:0 auto}
+.signup-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:2.5rem}
+.form-group{margin-bottom:1.1rem}
+.form-label{display:block;font-size:0.75rem;font-weight:500;color:var(--brand);margin-bottom:5px}
+.form-input{width:100%;padding:0.72rem 0.9rem;border:1px solid var(--border);border-radius:9px;font-size:0.85rem;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);transition:border-color 0.18s;outline:none}
+.form-input:focus{border-color:var(--accent)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.terms{font-size:0.72rem;color:var(--muted);text-align:center;margin-top:1rem;line-height:1.7}
+.terms a{color:var(--accent);text-decoration:none}
+.form-divider{text-align:center;font-size:0.75rem;color:var(--muted);margin:1.25rem 0;position:relative}
+.form-divider::before,.form-divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border)}
+.form-divider::before{left:0}.form-divider::after{right:0}
+.auth-error{color:#EF4444;font-size:0.75rem;margin-top:0.75rem;text-align:center;display:none}
+.success-msg{display:none;background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:1.25rem;text-align:center;color:#065F46;font-size:0.85rem;margin-top:1rem;line-height:1.7}
+
+/* LOGIN MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.25rem}
+.modal{background:var(--white);border-radius:18px;padding:2.25rem;width:100%;max-width:420px}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:0.25rem}
+.modal-sub{font-size:0.82rem;color:var(--muted);margin-bottom:1.75rem}
+.modal-close{float:right;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);line-height:1;margin-top:-2px}
+
+footer{background:var(--brand2);padding:3rem 2.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;border-top:1px solid rgba(255,255,255,0.06)}
+.footer-logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:7px}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+.footer-links a{font-size:0.75rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:rgba(255,255,255,0.75)}
+.footer-copy{font-size:0.7rem;color:rgba(255,255,255,0.2)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo"><div class="logo-dot"></div>Orderly</a>
+  <div class="nav-right">
+    <a href="#how" class="nav-link">How it works</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <button class="btn btn-ghost" onclick="document.getElementById('loginModal').style.display='flex'">Log in</button>
+    <a href="#signup" class="btn btn-primary">Start free</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🍽️ Built for restaurant owners</div>
+  <h1>Your restaurant.<br>Your orders.<br><span>Your control.</span></h1>
+  <p class="hero-sub">Each restaurant gets its own private dashboard, live order dockets, payment tracking, and a unique QR menu for customers — all on one platform.</p>
+  <div class="hero-btns">
+    <a href="#signup" class="btn btn-primary btn-lg">Get started free →</a>
+    <a href="#how" class="btn btn-lg btn-white-outline">See how it works</a>
+  </div>
+  <div class="hero-stats">
+    <div><div class="hero-stat-n">1 min</div><div class="hero-stat-l">Setup time</div></div>
+    <div><div class="hero-stat-n">Real-time</div><div class="hero-stat-l">Order updates</div></div>
+    <div><div class="hero-stat-n">QR ready</div><div class="hero-stat-l">Instant menu</div></div>
+    <div><div class="hero-stat-n">Multi-restaurant</div><div class="hero-stat-l">One platform</div></div>
+  </div>
+</div>
+
+<div class="how" id="how">
+  <p class="section-label">How it works</p>
+  <h2 class="section-title">Up and running in three steps</h2>
+  <p class="section-sub">No technical knowledge needed. Sign up, build your menu, and start receiving orders in minutes.</p>
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-num">01</div>
+      <div class="how-icon red">🏪</div>
+      <h3>Register your restaurant</h3>
+      <p>Create your account and get your own private dashboard with a unique ordering URL instantly.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">02</div>
+      <div class="how-icon amber">🍕</div>
+      <h3>Build your menu</h3>
+      <p>Add dishes, set prices, and organise by category. Changes go live immediately on your customer menu.</p>
+    </div>
+    <div class="how-card">
+      <div class="how-num">03</div>
+      <div class="how-icon green">📱</div>
+      <h3>Print your QR code</h3>
+      <p>Generate and print your unique QR code. Customers scan and order — it appears on your docket instantly.</p>
+    </div>
+  </div>
+</div>
+
+<div class="features">
+  <div class="features-inner">
+    <div>
+      <p class="section-label">Dashboard features</p>
+      <h2 class="section-title">Everything you need to manage orders</h2>
+      <div class="feat-list">
+        <div class="feat-item"><div class="feat-icon">🎫</div><div class="feat-text"><h4>Live order docket</h4><p>Orders appear the moment customers place them — like a digital kitchen ticket system that never misses an order.</p></div></div>
+        <div class="feat-item"><div class="feat-icon">⏱️</div><div class="feat-text"><h4>Smart wait time display</h4><p>Customers see a live estimated wait time based on your current queue — calculated automatically.</p></div></div>
+        <div class="feat-item"><div class="feat-icon">💳</div><div class="feat-text"><h4>Payment tracking</h4><p>Mark orders paid, track today's revenue, and see outstanding balances at a glance.</p></div></div>
+        <div class="feat-item"><div class="feat-icon">🔒</div><div class="feat-text"><h4>Fully private & isolated</h4><p>Each restaurant only ever sees their own data. Completely separate logins, menus and orders.</p></div></div>
+      </div>
+    </div>
+    <div class="dashboard-mock">
+      <div class="mock-bar">
+        <div class="mock-dot" style="background:#E94560"></div>
+        <div class="mock-dot" style="background:#F5A623"></div>
+        <div class="mock-dot" style="background:#22C55E"></div>
+        <span class="mock-label">Live Orders Dashboard</span>
+      </div>
+      <div class="mock-stats">
+        <div class="mock-stat"><div class="mock-stat-n">8</div><div class="mock-stat-l">Active</div></div>
+        <div class="mock-stat"><div class="mock-stat-n">$520</div><div class="mock-stat-l">Today</div></div>
+        <div class="mock-stat"><div class="mock-stat-n">14m</div><div class="mock-stat-l">Avg wait</div></div>
+      </div>
+      <div class="mock-orders">
+        <div class="mock-order"><div><div class="mock-order-n">Order #A2F1</div><div class="mock-order-i">Burger x2, Coke x2</div></div><span class="badge b-new">New</span></div>
+        <div class="mock-order"><div><div class="mock-order-n">Order #B8C3</div><div class="mock-order-i">Pizza x1, Salad x1</div></div><span class="badge b-prep">Preparing</span></div>
+        <div class="mock-order"><div><div class="mock-order-n">Order #D4E7</div><div class="mock-order-i">Pasta x2, Garlic bread</div></div><span class="badge b-ready">Ready</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pricing" id="pricing">
+  <p class="section-label">Pricing</p>
+  <h2 class="section-title">Simple, honest pricing</h2>
+  <p class="section-sub">Start free and scale as you grow. No hidden fees, no lock-in contracts.</p>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <p class="plan-name">Starter</p>
+      <div class="plan-price">Free <span>forever</span></div>
+      <p class="plan-desc">Perfect for a single location getting started with digital ordering.</p>
+      <ul class="plan-feats">
+        <li><span class="check">✓</span>1 restaurant</li>
+        <li><span class="check">✓</span>Up to 20 menu items</li>
+        <li><span class="check">✓</span>Live order docket</li>
+        <li><span class="check">✓</span>QR code generator</li>
+      </ul>
+      <a href="#signup" class="btn btn-ghost btn-full">Get started free</a>
+    </div>
+    <div class="price-card featured">
+      <p class="plan-name">Pro</p>
+      <div class="plan-price">$29 <span>/ month</span></div>
+      <p class="plan-desc">For busy restaurants that need full features and payment tracking.</p>
+      <ul class="plan-feats">
+        <li><span class="check">✓</span>1 restaurant</li>
+        <li><span class="check">✓</span>Unlimited menu items</li>
+        <li><span class="check">✓</span>Payment tracking</li>
+        <li><span class="check">✓</span>Wait time display</li>
+        <li><span class="check">✓</span>Analytics & reports</li>
+      </ul>
+      <a href="#signup" class="btn btn-primary btn-full">Start free trial</a>
+    </div>
+    <div class="price-card">
+      <p class="plan-name">Business</p>
+      <div class="plan-price">$79 <span>/ month</span></div>
+      <p class="plan-desc">For groups managing multiple restaurant locations.</p>
+      <ul class="plan-feats">
+        <li><span class="check">✓</span>Up to 10 restaurants</li>
+        <li><span class="check">✓</span>All Pro features</li>
+        <li><span class="check">✓</span>Multi-location dashboard</li>
+        <li><span class="check">✓</span>Priority support</li>
+      </ul>
+      <a href="#signup" class="btn btn-ghost btn-full">Contact us</a>
+    </div>
+  </div>
+</div>
+
+<div class="signup-section" id="signup">
+  <div class="signup-inner">
+    <div style="text-align:center;margin-bottom:2rem">
+      <p class="section-label">Get started</p>
+      <h2 class="section-title">Create your restaurant account</h2>
+      <p style="font-size:0.85rem;color:var(--muted);margin-top:0.5rem">Free forever. No credit card required.</p>
+    </div>
+    <div class="signup-card">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First name</label><input class="form-input" type="text" id="signupFirst" placeholder="John"></div>
+        <div class="form-group"><label class="form-label">Last name</label><input class="form-input" type="text" id="signupLast" placeholder="Smith"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Restaurant name</label><input class="form-input" type="text" id="signupRest" placeholder="The Golden Fork"></div>
+      <div class="form-group"><label class="form-label">Work email</label><input class="form-input" type="email" id="signupEmail" placeholder="you@restaurant.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 8 characters"></div>
+      <button class="btn btn-primary btn-full" id="signupBtn" onclick="handleSignup()">Create my restaurant account →</button>
+      <div class="auth-error" id="signupError"></div>
+      <div class="success-msg" id="signupSuccess"></div>
+      <p class="terms">By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+      <div class="form-divider">Already have an account?</div>
+      <button class="btn btn-ghost btn-full" onclick="document.getElementById('loginModal').style.display='flex'">Log in to your dashboard</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo"><div class="logo-dot"></div>Orderly</div>
+  <div class="footer-links">
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+  </div>
+  <p class="footer-copy">© 2026 Orderly. All rights reserved.</p>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('loginModal').style.display='none'">×</button>
+    <div class="modal-title">Welcome back</div>
+    <div class="modal-sub">Sign in to your restaurant dashboard</div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="loginEmail" placeholder="you@restaurant.com"></div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Your password"></div>
+    <button class="btn btn-primary btn-full" id="loginBtn" onclick="handleLogin()">Sign in to dashboard</button>
+    <div class="auth-error" id="loginError"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://nnujtfziynkecnmyoqwj.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5udWp0ZnppeW5rZWNubXlvcXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMDk4MTIsImV4cCI6MjA5NTc4NTgxMn0.3CrBL09oLUIk6wtLiPJQb2LN2Kl4wz0I4kENGE4hM8U';
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+
+async function handleSignup(){
+  const first=document.getElementById('signupFirst').value.trim();
+  const last=document.getElementById('signupLast').value.trim();
+  const rest=document.getElementById('signupRest').value.trim();
+  const email=document.getElementById('signupEmail').value.trim();
+  const pass=document.getElementById('signupPass').value;
+  const errEl=document.getElementById('signupError');
+  const successEl=document.getElementById('signupSuccess');
+  const btn=document.getElementById('signupBtn');
+  errEl.style.display='none';successEl.style.display='none';
+  if(!first||!rest||!email||!pass){errEl.textContent='Please fill in all required fields.';errEl.style.display='block';return;}
+  if(pass.length<8){errEl.textContent='Password must be at least 8 characters.';errEl.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Creating account...';
+  const {data,error}=await sb.auth.signUp({email,password:pass});
+  if(error){errEl.textContent=error.message;errEl.style.display='block';btn.disabled=false;btn.textContent='Create my restaurant account →';return;}
+  const slug=rest.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+  await sb.from('restaurants').insert({id:data.user.id,name:rest,email,slug});
+  btn.style.display='none';
+  successEl.innerHTML='✅ Account created for <strong>'+rest+'</strong>!<br>Check your email to confirm, then <a href="dashboard.html" style="color:var(--accent)">go to your dashboard →</a>';
+  successEl.style.display='block';
+}
+
+async function handleLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  const errEl=document.getElementById('loginError');
+  const btn=document.getElementById('loginBtn');
+  errEl.style.display='none';
+  if(!email||!pass){errEl.textContent='Please enter your email and password.';errEl.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Signing in...';
+  const {error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){errEl.textContent=error.message;errEl.style.display='block';btn.disabled=false;btn.textContent='Sign in to dashboard';return;}
+  window.location.href='dashboard.html';
+}
+
+sb.auth.getSession().then(({data:{session}})=>{
+  if(session)window.location.href='dashboard.html';
+});
+</script>
+</body>
+</html>
