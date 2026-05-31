@@ -169,13 +169,12 @@ let cart={};
 let activeCategory='All';
 
 function getSlugFromUrl(){
-  const path=window.location.pathname;
-  const parts=path.split('/');
-  return parts[parts.length-1]||new URLSearchParams(window.location.search).get('slug');
+  const params=new URLSearchParams(window.location.search);
+  return params.get('r')||params.get('slug')||null;
 }
 
 async function init(){
-  const slug=getSlugFromUrl()||new URLSearchParams(window.location.search).get('r');
+  const slug=getSlugFromUrl();
   if(!slug){showError();return;}
   const {data:rest}=await sb.from('restaurants').select('*').eq('slug',slug).single();
   if(!rest){showError();return;}
