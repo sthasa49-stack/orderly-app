@@ -308,26 +308,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text
     <!-- QR CODE -->
     <div class="page" id="page-qr">
       <div class="page-header">
-        <div><div class="page-title">QR Code</div><div class="page-sub">Your unique customer ordering link</div></div>
+        <div><div class="page-title">QR Codes</div><div class="page-sub">Generate unique QR codes per table — customers scan and their table number appears automatically</div></div>
+        <button class="btn-sm-primary" onclick="downloadAllQr()">⬇ Download All 10 QRs</button>
       </div>
-      <div class="qr-wrap">
-        <div class="qr-card">
-          <div class="qr-card-title">Customer ordering page</div>
-          <div class="qr-card-sub">Customers scan this QR code with their phone camera to view your menu and place orders. Each restaurant has a completely unique link.</div>
-          <div class="qr-url-box" id="qrUrl">Generating...</div>
-          <div class="qr-canvas"><canvas id="qrCanvas"></canvas></div>
-          <div class="qr-btns">
-            <button class="btn-sm-ghost" onclick="copyLink()">Copy link</button>
-            <button class="btn-sm-ghost" onclick="downloadQr()">Download QR</button>
-            <button class="btn-sm-primary" onclick="openCustomerPage()">Open customer page ↗</button>
+      <div class="qr-wrap" style="max-width:100%">
+        <div class="qr-card" style="margin-bottom:1.5rem">
+          <div class="qr-card-title">How table QR codes work</div>
+          <div class="qr-card-sub">Each table gets its own unique QR code. When a customer scans Table 3's QR, their order automatically shows "Table 3" on your docket — no typing needed.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:1rem">
+            <div class="qr-how-step"><div class="qr-step-num">1</div><div class="qr-step-text">Print each table's QR code below and place on that table.</div></div>
+            <div class="qr-how-step"><div class="qr-step-num">2</div><div class="qr-step-text">Customer scans — menu loads with their table number pre-set.</div></div>
+            <div class="qr-how-step"><div class="qr-step-num">3</div><div class="qr-step-text">Order arrives on your docket showing the correct table number.</div></div>
           </div>
         </div>
-        <div class="qr-card">
-          <div class="qr-card-title" style="margin-bottom:1rem">How to use</div>
-          <div class="qr-how-step"><div class="qr-step-num">1</div><div class="qr-step-text">Print this QR code and place it on each table in your restaurant.</div></div>
-          <div class="qr-how-step"><div class="qr-step-num">2</div><div class="qr-step-text">Customers scan with their phone camera — no app download needed.</div></div>
-          <div class="qr-how-step"><div class="qr-step-num">3</div><div class="qr-step-text">Orders appear instantly on your Live Orders dashboard above.</div></div>
-        </div>
+        <div id="qrTablesGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem"></div>
       </div>
     </div>
 
@@ -681,27 +675,48 @@ async function loadPayments(){
 // ─── QR CODE ──────────────────────────────────────────────────
 function generateQr(){
   if(!currentRestaurant)return;
-  const url='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug;
-  document.getElementById('qrUrl').textContent=url;
-  QRCode.toCanvas(document.getElementById('qrCanvas'),url,{width:200,margin:2,color:{dark:'#0F1117',light:'#FFFFFF'}});
+  const grid=document.getElementById('qrTablesGrid');
+  grid.innerHTML='';
+  for(let t=1;t<=10;t++){
+    const url='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug+'&table='+t;
+    const card=document.createElement('div');
+    card.style.cssText='background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center';
+    card.innerHTML=`
+      <div style="font-family:Syne,sans-serif;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem">Table ${t}</div>
+      <canvas id="qr-table-${t}" style="border-radius:8px"></canvas>
+      <div style="font-size:0.65rem;color:var(--muted);margin:0.75rem 0 1rem;word-break:break-all;font-family:monospace">Table ${t}</div>
+      <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap">
+        <button onclick="downloadTableQr(${t})" style="background:var(--accent);color:#fff;border:none;padding:0.4rem 0.85rem;border-radius:7px;font-size:0.7rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Download</button>
+        <button onclick="window.open('${url}','_blank')" style="background:var(--light);color:var(--brand);border:none;padding:0.4rem 0.85rem;border-radius:7px;font-size:0.7rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Preview</button>
+      </div>`;
+    grid.appendChild(card);
+    QRCode.toCanvas(document.getElementById('qr-table-'+t),url,{width:160,margin:2,color:{dark:'#0F1117',light:'#FFFFFF'}});
+  }
+}
+
+function downloadTableQr(tableNum){
+  const canvas=document.getElementById('qr-table-'+tableNum);
+  const link=document.createElement('a');
+  link.download=currentRestaurant.slug+'-table-'+tableNum+'.png';
+  link.href=canvas.toDataURL();
+  link.click();
+  showToast('Table '+tableNum+' QR downloaded');
+}
+
+function downloadAllQr(){
+  for(let t=1;t<=10;t++){
+    setTimeout(()=>downloadTableQr(t),t*300);
+  }
+  showToast('Downloading all 10 QR codes...','success');
 }
 
 function copyLink(){
-  const url=document.getElementById('qrUrl').textContent;
-  navigator.clipboard.writeText(url).then(()=>showToast('Link copied to clipboard','success'));
-}
-
-function downloadQr(){
-  const canvas=document.getElementById('qrCanvas');
-  const link=document.createElement('a');
-  link.download='orderly-qr-'+currentRestaurant.slug+'.png';
-  link.href=canvas.toDataURL();
-  link.click();
-  showToast('QR code downloaded');
+  const url='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug+'&table=1';
+  navigator.clipboard.writeText(url).then(()=>showToast('Link copied','success'));
 }
 
 function openCustomerPage(){
-  window.open('https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug,'_blank');
+  window.open('https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug+'&table=1','_blank');
 }
 
 // ─── BOOT ─────────────────────────────────────────────────────

@@ -13,148 +13,226 @@
   --surface:#F7F8FA;--white:#FFFFFF;--border:#E5E7EB;--muted:#6B7280;
   --light:#F3F4F6;--text:#0F1117;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;padding-bottom:120px}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);min-height:100vh;padding-bottom:130px}
 
-header{background:var(--brand);padding:1.5rem;text-align:center;position:sticky;top:0;z-index:100}
-.header-logo{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:0.35rem}
-.header-name{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#fff}
-.wait-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.3);color:var(--amber);padding:5px 14px;border-radius:20px;font-size:0.72rem;font-weight:500;margin-top:0.75rem}
-.wait-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:pulse 1.5s infinite}
+/* ── HERO HEADER ── */
+.rest-hero{position:relative;height:220px;overflow:hidden;background:var(--brand)}
+.rest-hero-bg{width:100%;height:100%;object-fit:cover;opacity:0.45;filter:sepia(20%) saturate(0.8)}
+.rest-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,17,23,0.3) 0%,rgba(15,17,23,0.85) 100%)}
+.rest-hero-content{position:absolute;bottom:0;left:0;right:0;padding:1.5rem}
+.rest-logo-ring{width:60px;height:60px;border-radius:50%;background:var(--white);border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--accent);margin-bottom:0.75rem}
+.rest-name{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;line-height:1.1}
+.rest-tagline{font-size:0.75rem;color:rgba(255,255,255,0.55);margin-top:4px}
+.rest-meta{display:flex;gap:1rem;margin-top:0.75rem;flex-wrap:wrap}
+.rest-meta-item{display:flex;align-items:center;gap:5px;font-size:0.72rem;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.1);padding:4px 10px;border-radius:20px;backdrop-filter:blur(4px)}
+
+/* ── TABLE BADGE ── */
+.table-banner{background:var(--amber);color:var(--brand);padding:0.65rem 1.5rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;font-size:0.78rem;font-weight:600}
+.table-banner span{font-family:'Syne',sans-serif;font-size:1rem}
+
+/* ── WAIT TIME ── */
+.wait-bar{background:var(--brand);padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.wait-dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 1.5s infinite;flex-shrink:0}
+.wait-text{font-size:0.78rem;color:rgba(255,255,255,0.75);display:flex;align-items:center;gap:0.5rem}
+.wait-text.quiet .wait-dot{background:var(--green)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
-.categories{display:flex;gap:0.5rem;padding:1rem 1.25rem;overflow-x:auto;background:var(--white);border-bottom:1px solid var(--border);scrollbar-width:none}
-.categories::-webkit-scrollbar{display:none}
-.cat-btn{flex-shrink:0;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all 0.18s;font-family:'DM Sans',sans-serif}
+/* ── CATEGORIES ── */
+.cat-bar{display:flex;gap:0.5rem;padding:1rem 1.25rem;overflow-x:auto;background:var(--white);border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:0;z-index:50}
+.cat-bar::-webkit-scrollbar{display:none}
+.cat-btn{flex-shrink:0;padding:0.45rem 1.1rem;border-radius:20px;font-size:0.76rem;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--muted);transition:all 0.18s;font-family:'DM Sans',sans-serif}
 .cat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 
-.menu-section{padding:1.25rem}
-.section-title{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:1rem 0 0.75rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
-.items-grid{display:flex;flex-direction:column;gap:0.75rem}
-.item-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:border-color 0.2s;cursor:pointer}
-.item-card:hover{border-color:var(--accent)}
-.item-card.unavailable{opacity:0.5;pointer-events:none}
-.item-info{flex:1}
-.item-name{font-weight:500;font-size:0.92rem;margin-bottom:3px}
-.item-desc{font-size:0.78rem;color:var(--muted);line-height:1.6;margin-bottom:6px}
-.item-price{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent)}
-.item-add{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.18s;flex-shrink:0}
-.item-add:hover{background:#c73650}
-.item-counter{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.counter-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:transparent;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+/* ── MENU ITEMS ── */
+.menu-sec{padding:1rem 1.25rem}
+.cat-heading{font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin:1.25rem 0 0.85rem;display:flex;align-items:center;gap:0.75rem}
+.cat-heading::after{content:'';flex:1;height:1px;background:var(--border)}
+.items-list{display:flex;flex-direction:column;gap:0.75rem}
+
+.item-card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;transition:border-color 0.2s,box-shadow 0.2s}
+.item-card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(233,69,96,0.08)}
+.item-card.unavailable{opacity:0.45;pointer-events:none}
+.item-img{width:100px;height:100px;object-fit:cover;flex-shrink:0}
+.item-img-placeholder{width:100px;height:100px;background:linear-gradient(135deg,var(--light),var(--border));display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+.item-body{flex:1;padding:0.9rem 1rem;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.item-name{font-weight:600;font-size:0.9rem;color:var(--text);line-height:1.3}
+.item-desc{font-size:0.73rem;color:var(--muted);line-height:1.6;margin:4px 0 8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.item-footer{display:flex;align-items:center;justify-content:space-between}
+.item-price{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--accent)}
+.item-unavail-label{font-size:0.65rem;color:var(--muted);background:var(--light);padding:2px 8px;border-radius:5px}
+.add-btn{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.18s;flex-shrink:0}
+.add-btn:hover{background:#c73650}
+.counter{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.counter-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:transparent;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
 .counter-btn:hover{border-color:var(--accent);color:var(--accent)}
 .counter-num{font-weight:600;font-size:0.88rem;min-width:16px;text-align:center}
 
-/* CART */
-.cart-bar{position:fixed;bottom:1.25rem;left:1.25rem;right:1.25rem;background:var(--brand);color:#fff;border-radius:14px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 30px rgba(0,0,0,0.25);transform:translateY(200px);opacity:0;transition:all 0.3s;z-index:200}
+/* ── CART BAR ── */
+.cart-bar{position:fixed;bottom:1.25rem;left:1.25rem;right:1.25rem;background:var(--brand);color:#fff;border-radius:16px;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 32px rgba(0,0,0,0.28);transform:translateY(200px);opacity:0;transition:all 0.3s;z-index:200}
 .cart-bar.visible{transform:translateY(0);opacity:1}
-.cart-count{font-size:0.78rem;color:rgba(255,255,255,0.6)}
-.cart-total{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
-.cart-btn{background:var(--accent);color:#fff;border:none;padding:0.6rem 1.25rem;border-radius:9px;font-size:0.82rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s}
-.cart-btn:hover{background:#c73650}
+.cart-info{}
+.cart-count{font-size:0.72rem;color:rgba(255,255,255,0.55)}
+.cart-total{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700}
+.view-cart-btn{background:var(--accent);color:#fff;border:none;padding:0.65rem 1.5rem;border-radius:10px;font-size:0.82rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s}
+.view-cart-btn:hover{background:#c73650}
 
-/* ORDER MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:flex-end;justify-content:center}
-.order-modal{background:var(--white);border-radius:20px 20px 0 0;padding:1.75rem 1.25rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto}
-.modal-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 1.5rem}
-.modal-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.5rem}
-.cart-item-row{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.85rem}
-.cart-item-name{font-weight:500}
-.cart-item-sub{font-size:0.75rem;color:var(--muted)}
-.cart-item-price{font-weight:500}
-.order-form{margin-top:1.25rem}
+/* ── ORDER MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.order-sheet{background:var(--white);border-radius:22px 22px 0 0;padding:0 0 2rem;width:100%;max-width:540px;max-height:92vh;overflow-y:auto}
+.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:1rem auto}
+.sheet-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;padding:0 1.5rem;margin-bottom:1.25rem}
+.cart-items{padding:0 1.5rem}
+.cart-item-row{display:flex;justify-content:space-between;align-items:center;padding:0.8rem 0;border-bottom:1px solid var(--border)}
+.cart-item-row:last-child{border-bottom:none}
+.cart-item-name{font-weight:500;font-size:0.85rem}
+.cart-item-meta{font-size:0.72rem;color:var(--muted);margin-top:2px}
+.cart-item-price{font-weight:600;font-size:0.85rem;color:var(--accent)}
+.order-details{padding:1.25rem 1.5rem 0}
+.order-total-row{display:flex;justify-content:space-between;font-size:0.9rem;font-weight:600;padding:1rem 1.5rem;background:var(--surface);margin:0 1.5rem;border-radius:10px}
 .form-group{margin-bottom:1rem}
-.form-label{display:block;font-size:0.75rem;font-weight:500;color:var(--muted);margin-bottom:5px}
-.form-input{width:100%;padding:0.7rem 0.9rem;border:1px solid var(--border);border-radius:9px;font-size:0.85rem;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color 0.18s}
+.form-label{display:block;font-size:0.72rem;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em}
+.form-input{width:100%;padding:0.7rem 0.9rem;border:1.5px solid var(--border);border-radius:9px;font-size:0.85rem;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border-color 0.18s;background:var(--white)}
 .form-input:focus{border-color:var(--accent)}
-.order-total{display:flex;justify-content:space-between;font-size:0.92rem;font-weight:600;padding:1rem 0;border-top:1px solid var(--border);margin-top:0.5rem}
-.btn-place{width:100%;padding:0.9rem;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:0.9rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:1rem;transition:background 0.2s}
-.btn-place:hover{background:#c73650}
-.btn-place:disabled{opacity:0.6;cursor:not-allowed}
-.btn-close{width:100%;padding:0.75rem;background:var(--light);color:var(--muted);border:none;border-radius:12px;font-size:0.85rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:0.5rem}
+.form-input[readonly]{background:var(--light);color:var(--muted)}
 
-/* SUCCESS */
-.success-screen{display:none;position:fixed;inset:0;background:var(--brand);z-index:1000;align-items:center;justify-content:center;text-align:center;padding:2rem;flex-direction:column}
-.success-icon{width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,0.15);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.5rem}
+/* ── PAYMENT ── */
+.payment-section{padding:0 1.5rem;margin-top:1.25rem}
+.payment-title{font-size:0.78rem;font-weight:600;color:var(--text);margin-bottom:0.85rem;text-transform:uppercase;letter-spacing:0.08em}
+.payment-opts{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1.25rem}
+.pay-opt{border:2px solid var(--border);border-radius:10px;padding:0.85rem;text-align:center;cursor:pointer;transition:all 0.18s}
+.pay-opt.selected{border-color:var(--accent);background:rgba(233,69,96,0.04)}
+.pay-opt-icon{font-size:1.3rem;margin-bottom:0.35rem}
+.pay-opt-label{font-size:0.75rem;font-weight:500;color:var(--text)}
+.pay-opt-sub{font-size:0.65rem;color:var(--muted);margin-top:2px}
+
+.place-btn{width:calc(100% - 3rem);margin:1rem 1.5rem 0;padding:0.95rem;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s}
+.place-btn:hover{background:#c73650}
+.place-btn:disabled{opacity:0.55;cursor:not-allowed}
+.close-sheet-btn{width:calc(100% - 3rem);margin:0.6rem 1.5rem 0;padding:0.75rem;background:var(--light);color:var(--muted);border:none;border-radius:12px;font-size:0.85rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* ── SUCCESS ── */
+.success-screen{display:none;position:fixed;inset:0;background:var(--brand);z-index:1000;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+.success-icon{width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,0.15);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 1.5rem}
 .success-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:0.75rem}
-.success-sub{font-size:0.9rem;color:rgba(255,255,255,0.55);line-height:1.8;max-width:320px;margin:0 auto 2rem}
-.success-wait{background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.25);border-radius:12px;padding:1.25rem;margin-bottom:2rem;max-width:280px;margin-left:auto;margin-right:auto}
+.success-sub{font-size:0.88rem;color:rgba(255,255,255,0.5);line-height:1.8;max-width:300px;margin:0 auto 1.5rem}
+.success-detail{background:rgba(255,255,255,0.06);border-radius:14px;padding:1.25rem 2rem;margin-bottom:1.5rem;display:inline-block}
+.success-detail-row{display:flex;justify-content:space-between;gap:2rem;font-size:0.82rem;margin-bottom:0.5rem}
+.success-detail-row:last-child{margin-bottom:0}
+.success-detail-label{color:rgba(255,255,255,0.45)}
+.success-detail-val{color:#fff;font-weight:500}
+.success-wait{background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.25);border-radius:12px;padding:1.25rem 2rem;margin-bottom:2rem}
 .success-wait-num{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--amber)}
-.success-wait-label{font-size:0.78rem;color:rgba(255,255,255,0.45);margin-top:4px}
+.success-wait-label{font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:4px}
 .btn-back{background:var(--accent);color:#fff;border:none;padding:0.85rem 2rem;border-radius:12px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
 
 .loading{text-align:center;padding:4rem 2rem;color:var(--muted)}
 .error-screen{text-align:center;padding:4rem 2rem}
-.error-screen h2{font-family:'Syne',sans-serif;font-size:1.4rem;margin-bottom:0.75rem}
-.error-screen p{color:var(--muted);font-size:0.85rem}
 </style>
 </head>
 <body>
 
-<div id="loadingScreen" class="loading">
-  <div style="font-size:2rem;margin-bottom:1rem">🍽️</div>
-  <div>Loading menu...</div>
-</div>
-
-<div id="errorScreen" class="error-screen" style="display:none">
-  <div style="font-size:3rem;margin-bottom:1rem">😕</div>
-  <h2>Restaurant not found</h2>
-  <p>This menu link may be invalid or the restaurant is no longer active.</p>
-</div>
+<div id="loadingScreen" class="loading"><div style="font-size:2.5rem;margin-bottom:1rem">🍽️</div><div>Loading menu...</div></div>
+<div id="errorScreen" class="error-screen" style="display:none"><div style="font-size:3rem;margin-bottom:1rem">😕</div><h2 style="font-family:Syne,sans-serif;margin-bottom:0.75rem">Restaurant not found</h2><p style="color:var(--muted);font-size:0.85rem">This QR code may be invalid or expired.</p></div>
 
 <div id="appContent" style="display:none">
-  <header>
-    <div class="header-logo">Powered by Orderly</div>
-    <div class="header-name" id="restName">Restaurant</div>
-    <div class="wait-badge"><div class="wait-dot"></div><span id="waitTime">Calculating wait time...</span></div>
-  </header>
 
-  <div class="categories" id="categoriesBar"></div>
-
-  <div class="menu-section">
-    <div id="menuContent"></div>
+  <!-- RESTAURANT HERO -->
+  <div class="rest-hero">
+    <img class="rest-hero-bg" id="restHeroBg" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80" alt="Restaurant">
+    <div class="rest-hero-overlay"></div>
+    <div class="rest-hero-content">
+      <div class="rest-logo-ring" id="restLogoRing">R</div>
+      <div class="rest-name" id="restName">Restaurant</div>
+      <div class="rest-tagline" id="restTagline">Welcome — scan to order</div>
+      <div class="rest-meta">
+        <div class="rest-meta-item">📍 <span id="restLocation">Loading...</span></div>
+        <div class="rest-meta-item">🕐 Order & pay from your table</div>
+      </div>
+    </div>
   </div>
+
+  <!-- TABLE BANNER -->
+  <div class="table-banner" id="tableBanner" style="display:none">
+    🪑 You are at <span id="tableBannerNum"></span>
+  </div>
+
+  <!-- WAIT TIME -->
+  <div class="wait-bar">
+    <div class="wait-text" id="waitText"><div class="wait-dot" id="waitDot"></div><span id="waitMsg">Checking wait time...</span></div>
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.4)">Powered by Orderly</div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="cat-bar" id="catBar"></div>
+
+  <!-- MENU -->
+  <div class="menu-sec" id="menuContent"></div>
 </div>
 
+<!-- CART BAR -->
 <div class="cart-bar" id="cartBar">
-  <div>
+  <div class="cart-info">
     <div class="cart-count" id="cartCount">0 items</div>
     <div class="cart-total" id="cartTotal">$0.00</div>
   </div>
-  <button class="cart-btn" onclick="openOrderModal()">View order →</button>
+  <button class="view-cart-btn" onclick="openOrderModal()">View order →</button>
 </div>
 
 <!-- ORDER MODAL -->
-<div class="modal-overlay" id="orderModal" style="display:none">
-  <div class="order-modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Your order</div>
-    <div id="cartItemsList"></div>
-    <div class="order-total"><span>Total</span><span id="modalTotal">$0.00</span></div>
-    <div class="order-form">
+<div class="modal-overlay" id="orderModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="order-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Your Order</div>
+    <div class="cart-items" id="cartItemsList"></div>
+    <div class="order-total-row"><span>Total</span><span id="modalTotal" style="color:var(--accent)">$0.00</span></div>
+
+    <div class="order-details">
       <div class="form-group">
-        <label class="form-label">Your name (optional)</label>
+        <label class="form-label">Your Name (optional)</label>
         <input class="form-input" type="text" id="customerName" placeholder="e.g. John">
       </div>
       <div class="form-group">
-        <label class="form-label">Table number (optional)</label>
-        <input class="form-input" type="text" id="tableNumber" placeholder="e.g. 4">
+        <label class="form-label">Table Number</label>
+        <input class="form-input" type="text" id="tableNumber" placeholder="e.g. 4" id="tableNumber">
       </div>
     </div>
-    <button class="btn-place" id="placeOrderBtn" onclick="placeOrder()">Place order</button>
-    <button class="btn-close" onclick="document.getElementById('orderModal').style.display='none'">Continue browsing</button>
+
+    <div class="payment-section">
+      <div class="payment-title">How would you like to pay?</div>
+      <div class="payment-opts">
+        <div class="pay-opt selected" id="payOpt-cash" onclick="selectPayment('cash')">
+          <div class="pay-opt-icon">💵</div>
+          <div class="pay-opt-label">Pay at Counter</div>
+          <div class="pay-opt-sub">Cash or card when ready</div>
+        </div>
+        <div class="pay-opt" id="payOpt-table" onclick="selectPayment('table')">
+          <div class="pay-opt-icon">🧾</div>
+          <div class="pay-opt-label">Pay at Table</div>
+          <div class="pay-opt-sub">Staff will bring the bill</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="place-btn" id="placeBtn" onclick="placeOrder()">Place Order</button>
+    <button class="close-sheet-btn" onclick="document.getElementById('orderModal').style.display='none'">Continue browsing</button>
   </div>
 </div>
 
-<!-- SUCCESS SCREEN -->
+<!-- SUCCESS -->
 <div class="success-screen" id="successScreen">
   <div class="success-icon">✓</div>
-  <div class="success-title">Order placed!</div>
-  <p class="success-sub">Your order has been sent to the kitchen. You'll be notified when it's ready.</p>
+  <div class="success-title">Order Placed!</div>
+  <p class="success-sub">Your order has been sent to the kitchen and will appear on the restaurant's screen right now.</p>
+  <div class="success-detail">
+    <div class="success-detail-row"><span class="success-detail-label">Table</span><span class="success-detail-val" id="successTable">—</span></div>
+    <div class="success-detail-row"><span class="success-detail-label">Payment</span><span class="success-detail-val" id="successPayment">—</span></div>
+    <div class="success-detail-row"><span class="success-detail-label">Total</span><span class="success-detail-val" id="successTotal">—</span></div>
+  </div>
   <div class="success-wait">
     <div class="success-wait-num" id="successWait">~15</div>
     <div class="success-wait-label">estimated minutes wait</div>
   </div>
-  <button class="btn-back" onclick="resetOrder()">Order more</button>
+  <button class="btn-back" onclick="resetOrder()">Order More</button>
 </div>
 
 <script>
@@ -163,24 +241,45 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const {createClient}=supabase;
 const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
 
-let restaurant=null;
-let menuItems=[];
-let cart={};
-let activeCategory='All';
+let restaurant=null,menuItems=[],cart={},activeCategory='All',selectedPayment='cash',tableNumber='';
 
-function getSlugFromUrl(){
-  const params=new URLSearchParams(window.location.search);
-  return params.get('r')||params.get('slug')||null;
-}
+// Food category emojis & fallback images
+const CAT_EMOJI={'Starters':'🥗','Mains':'🍽️','Sides':'🍟','Desserts':'🍰','Drinks':'🥤','default':'🍴'};
+const CAT_IMG={
+  'Starters':'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=200&q=70',
+  'Mains':'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&q=70',
+  'Sides':'https://images.unsplash.com/photo-1576107232684-1279f390859f?w=200&q=70',
+  'Desserts':'https://images.unsplash.com/photo-1567171466295-4afa63d45416?w=200&q=70',
+  'Drinks':'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=200&q=70',
+  'default':'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=70'
+};
+
+function getSlug(){return new URLSearchParams(window.location.search).get('r')||null;}
+function getTable(){return new URLSearchParams(window.location.search).get('table')||'';}
 
 async function init(){
-  const slug=getSlugFromUrl();
+  const slug=getSlug();
   if(!slug){showError();return;}
+  tableNumber=getTable();
   const {data:rest}=await sb.from('restaurants').select('*').eq('slug',slug).single();
   if(!rest){showError();return;}
   restaurant=rest;
   document.title=rest.name+' — Menu';
+
+  // Set hero
   document.getElementById('restName').textContent=rest.name;
+  document.getElementById('restTagline').textContent='Scan. Order. Enjoy.';
+  document.getElementById('restLocation').textContent='Bandipur, Nepal';
+  document.getElementById('restLogoRing').textContent=rest.name.charAt(0).toUpperCase();
+
+  // Table banner
+  if(tableNumber){
+    document.getElementById('tableBanner').style.display='flex';
+    document.getElementById('tableBannerNum').textContent='Table '+tableNumber;
+    document.getElementById('tableNumber').value=tableNumber;
+    document.getElementById('tableNumber').setAttribute('readonly','true');
+  }
+
   await loadMenu();
   await updateWaitTime();
   document.getElementById('loadingScreen').style.display='none';
@@ -193,7 +292,7 @@ function showError(){
 }
 
 async function loadMenu(){
-  const {data}=await sb.from('menu_items').select('*').eq('restaurant_id',restaurant.id).order('category');
+  const {data}=await sb.from('menu_items').select('*').eq('restaurant_id',restaurant.id).order('category').order('name');
   menuItems=data||[];
   renderCategories();
   renderMenu();
@@ -203,24 +302,22 @@ async function updateWaitTime(){
   const {data}=await sb.from('orders').select('id').eq('restaurant_id',restaurant.id).in('status',['new','preparing']);
   const active=(data||[]).length;
   const wait=Math.max(10,active*8);
-  const el=document.getElementById('waitTime');
-  if(active===0){el.textContent='No wait — order now!';document.querySelector('.wait-dot').style.background='#22C55E';}
-  else if(active<=3){el.textContent='~'+wait+' min wait — low wait';}
-  else{el.textContent='~'+wait+' min wait — busy right now';}
+  const dot=document.getElementById('waitDot');
+  const msg=document.getElementById('waitMsg');
+  if(active===0){msg.textContent='No wait right now — order and it'll be fast!';dot.style.background='var(--green)';}
+  else if(active<=3){msg.textContent='~'+wait+' min wait · '+active+' orders ahead';}
+  else{msg.textContent='~'+wait+' min wait · Kitchen is busy right now';}
   document.getElementById('successWait').textContent='~'+wait;
 }
 
 function renderCategories(){
   const cats=['All',...new Set(menuItems.map(i=>i.category))];
-  const bar=document.getElementById('categoriesBar');
-  bar.innerHTML=cats.map(c=>`<button class="cat-btn${c===activeCategory?' active':''}" onclick="filterCategory('${c}')">${c}</button>`).join('');
+  document.getElementById('catBar').innerHTML=cats.map(c=>
+    `<button class="cat-btn${c===activeCategory?' active':''}" onclick="filterCat('${c}')">${CAT_EMOJI[c]||'🍴'} ${c}</button>`
+  ).join('');
 }
 
-function filterCategory(cat){
-  activeCategory=cat;
-  renderCategories();
-  renderMenu();
-}
+function filterCat(cat){activeCategory=cat;renderCategories();renderMenu();}
 
 function renderMenu(){
   const filtered=activeCategory==='All'?menuItems:menuItems.filter(i=>i.category===activeCategory);
@@ -229,58 +326,71 @@ function renderMenu(){
   const content=document.getElementById('menuContent');
   if(!filtered.length){content.innerHTML='<div style="text-align:center;padding:3rem;color:var(--muted)">No items in this category</div>';return;}
   content.innerHTML=Object.entries(grouped).map(([cat,items])=>`
-    <div class="section-title">${cat}</div>
-    <div class="items-grid">
-      ${items.map(item=>renderItem(item)).join('')}
-    </div>
+    <div class="cat-heading">${CAT_EMOJI[cat]||'🍴'} ${cat}</div>
+    <div class="items-list">${items.map(item=>renderItem(item)).join('')}</div>
   `).join('');
 }
 
 function renderItem(item){
   const qty=cart[item.id]||0;
-  return `<div class="item-card${!item.available?' unavailable':''}">
-    <div class="item-info">
-      <div class="item-name">${item.name}</div>
-      ${item.description?`<div class="item-desc">${item.description}</div>`:''}
-      <div class="item-price">$${parseFloat(item.price).toFixed(2)}</div>
+  const imgSrc=item.img||(CAT_IMG[item.category]||CAT_IMG['default']);
+  const imgHtml=`<img class="item-img" src="${imgSrc}" alt="${item.name}" onerror="this.outerHTML='<div class=item-img-placeholder>${CAT_EMOJI[item.category]||'🍴'}</div>'">`;
+  return`<div class="item-card${!item.available?' unavailable':''}">
+    ${imgHtml}
+    <div class="item-body">
+      <div>
+        <div class="item-name">${item.name}</div>
+        ${item.description?`<div class="item-desc">${item.description}</div>`:''}
+      </div>
+      <div class="item-footer">
+        <div class="item-price">$${parseFloat(item.price).toFixed(2)}</div>
+        ${!item.available
+          ?'<span class="item-unavail-label">Unavailable</span>'
+          :qty===0
+            ?`<button class="add-btn" onclick="addToCart('${item.id}')">+</button>`
+            :`<div class="counter">
+                <button class="counter-btn" onclick="removeFromCart('${item.id}')">−</button>
+                <span class="counter-num">${qty}</span>
+                <button class="counter-btn" onclick="addToCart('${item.id}')">+</button>
+              </div>`
+        }
+      </div>
     </div>
-    ${qty===0
-      ?`<button class="item-add" onclick="addToCart('${item.id}')">+</button>`
-      :`<div class="item-counter">
-          <button class="counter-btn" onclick="removeFromCart('${item.id}')">−</button>
-          <span class="counter-num">${qty}</span>
-          <button class="counter-btn" onclick="addToCart('${item.id}')">+</button>
-        </div>`
-    }
   </div>`;
 }
 
-function addToCart(id){cart[id]=(cart[id]||0)+1;updateCart();renderMenu();}
-function removeFromCart(id){if(cart[id]>1)cart[id]--;else delete cart[id];updateCart();renderMenu();}
+function addToCart(id){cart[id]=(cart[id]||0)+1;updateCartBar();renderMenu();}
+function removeFromCart(id){if(cart[id]>1)cart[id]--;else delete cart[id];updateCartBar();renderMenu();}
 
-function updateCart(){
-  const total=Object.entries(cart).reduce((s,[id,qty])=>{
-    const item=menuItems.find(i=>i.id===id);
-    return s+(item?item.price*qty:0);
-  },0);
+function updateCartBar(){
+  const total=getTotal();
   const count=Object.values(cart).reduce((s,q)=>s+q,0);
   document.getElementById('cartCount').textContent=count+' item'+(count!==1?'s':'');
   document.getElementById('cartTotal').textContent='$'+total.toFixed(2);
   const bar=document.getElementById('cartBar');
-  if(count>0)bar.classList.add('visible');else bar.classList.remove('visible');
+  count>0?bar.classList.add('visible'):bar.classList.remove('visible');
 }
 
-function openOrderModal(){
-  const list=document.getElementById('cartItemsList');
-  const total=Object.entries(cart).reduce((s,[id,qty])=>{
+function getTotal(){
+  return Object.entries(cart).reduce((s,[id,qty])=>{
     const item=menuItems.find(i=>i.id===id);
     return s+(item?item.price*qty:0);
   },0);
-  list.innerHTML=Object.entries(cart).map(([id,qty])=>{
+}
+
+function selectPayment(type){
+  selectedPayment=type;
+  document.querySelectorAll('.pay-opt').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('payOpt-'+type).classList.add('selected');
+}
+
+function openOrderModal(){
+  const total=getTotal();
+  document.getElementById('cartItemsList').innerHTML=Object.entries(cart).map(([id,qty])=>{
     const item=menuItems.find(i=>i.id===id);
     if(!item)return'';
     return`<div class="cart-item-row">
-      <div><div class="cart-item-name">${item.name}</div><div class="cart-item-sub">x${qty}</div></div>
+      <div><div class="cart-item-name">${item.name}</div><div class="cart-item-meta">x${qty} @ $${parseFloat(item.price).toFixed(2)}</div></div>
       <div class="cart-item-price">$${(item.price*qty).toFixed(2)}</div>
     </div>`;
   }).join('');
@@ -290,41 +400,42 @@ function openOrderModal(){
 
 async function placeOrder(){
   if(!Object.keys(cart).length)return;
-  const btn=document.getElementById('placeOrderBtn');
+  const btn=document.getElementById('placeBtn');
   btn.disabled=true;btn.textContent='Placing order...';
-  const total=Object.entries(cart).reduce((s,[id,qty])=>{
-    const item=menuItems.find(i=>i.id===id);
-    return s+(item?item.price*qty:0);
-  },0);
+  const total=getTotal();
   const customerName=document.getElementById('customerName').value.trim()||'Guest';
-  const tableNumber=document.getElementById('tableNumber').value.trim();
+  const tNum=document.getElementById('tableNumber').value.trim()||tableNumber||null;
+  const payLabel=selectedPayment==='cash'?'Pay at Counter':'Pay at Table';
   const {data:order,error}=await sb.from('orders').insert({
     restaurant_id:restaurant.id,
     customer_name:customerName,
-    table_number:tableNumber||null,
+    table_number:tNum,
     status:'new',
-    total:total.toFixed(2)
+    total:total.toFixed(2),
+    payment_method:selectedPayment
   }).select().single();
-  if(error){btn.disabled=false;btn.textContent='Place order';alert('Error placing order. Please try again.');return;}
-  const orderItems=Object.entries(cart).map(([id,qty])=>{
+  if(error){btn.disabled=false;btn.textContent='Place Order';alert('Error: '+error.message);return;}
+  const items=Object.entries(cart).map(([id,qty])=>{
     const item=menuItems.find(i=>i.id===id);
     return{order_id:order.id,menu_item_id:id,name:item.name,price:item.price,quantity:qty};
   });
-  await sb.from('order_items').insert(orderItems);
+  await sb.from('order_items').insert(items);
   document.getElementById('orderModal').style.display='none';
-  btn.disabled=false;btn.textContent='Place order';
+  btn.disabled=false;btn.textContent='Place Order';
+  // Show success
+  document.getElementById('successTable').textContent=tNum?'Table '+tNum:'Not specified';
+  document.getElementById('successPayment').textContent=payLabel;
+  document.getElementById('successTotal').textContent='$'+total.toFixed(2);
   await updateWaitTime();
-  const success=document.getElementById('successScreen');
-  success.style.display='flex';
+  document.getElementById('successScreen').style.display='flex';
 }
 
 function resetOrder(){
-  cart={};
-  updateCart();
-  renderMenu();
+  cart={};updateCartBar();renderMenu();
   document.getElementById('successScreen').style.display='none';
   document.getElementById('customerName').value='';
-  document.getElementById('tableNumber').value='';
+  if(!tableNumber)document.getElementById('tableNumber').value='';
+  selectPayment('cash');
 }
 
 init();
