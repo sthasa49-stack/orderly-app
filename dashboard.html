@@ -6,7 +6,6 @@
 <title>Orderly — Restaurant Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -308,20 +307,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text
     <!-- QR CODE -->
     <div class="page" id="page-qr">
       <div class="page-header">
-        <div><div class="page-title">QR Codes</div><div class="page-sub">Generate unique QR codes per table — customers scan and their table number appears automatically</div></div>
-        <button class="btn-sm-primary" onclick="downloadAllQr()">⬇ Download All 10 QRs</button>
+        <div><div class="page-title">QR Codes</div><div class="page-sub">10 table QR codes — print and place on each table</div></div>
+        <button class="btn-sm-primary" onclick="downloadAllQr()">⬇ Download All 10</button>
       </div>
-      <div class="qr-wrap" style="max-width:100%">
-        <div class="qr-card" style="margin-bottom:1.5rem">
-          <div class="qr-card-title">How table QR codes work</div>
-          <div class="qr-card-sub">Each table gets its own unique QR code. When a customer scans Table 3's QR, their order automatically shows "Table 3" on your docket — no typing needed.</div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:1rem">
-            <div class="qr-how-step"><div class="qr-step-num">1</div><div class="qr-step-text">Print each table's QR code below and place on that table.</div></div>
-            <div class="qr-how-step"><div class="qr-step-num">2</div><div class="qr-step-text">Customer scans — menu loads with their table number pre-set.</div></div>
-            <div class="qr-how-step"><div class="qr-step-num">3</div><div class="qr-step-text">Order arrives on your docket showing the correct table number.</div></div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem">
+        <div style="font-weight:600;font-size:0.88rem;margin-bottom:0.5rem">How it works</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;font-size:0.78rem">
+            <div style="width:24px;height:24px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">1</div>
+            <div style="color:var(--muted)">Print each table QR and place it on that table in your restaurant.</div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;font-size:0.78rem">
+            <div style="width:24px;height:24px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">2</div>
+            <div style="color:var(--muted)">Customer scans — menu opens with their table number already set.</div>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;font-size:0.78rem">
+            <div style="width:24px;height:24px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0">3</div>
+            <div style="color:var(--muted)">Order lands on your Live Orders docket showing the correct table.</div>
           </div>
         </div>
-        <div id="qrTablesGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem"></div>
+      </div>
+      <div id="qrTablesGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem">
+        <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted)">Click the QR Code tab to generate...</div>
       </div>
     </div>
 
@@ -428,10 +435,17 @@ async function handleLogin(){
   if(!email||!password){showAuthError('Please enter your email and password.');return;}
   const btn=document.getElementById('loginBtn');
   btn.textContent='Signing in...';btn.disabled=true;
-  const {data,error}=await sb.auth.signInWithPassword({email,password});
-  btn.textContent='Sign in to dashboard';btn.disabled=false;
-  if(error){showAuthError('Login failed: '+error.message);return;}
-  await initApp(data.user);
+  document.getElementById('authError').style.display='none';
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    btn.textContent='Sign in to dashboard';btn.disabled=false;
+    if(error){showAuthError('Login failed: '+error.message);return;}
+    if(!data||!data.user){showAuthError('No user returned. Please try again.');return;}
+    await initApp(data.user);
+  }catch(e){
+    btn.textContent='Sign in to dashboard';btn.disabled=false;
+    showAuthError('Unexpected error: '+e.message);
+  }
 }
 
 // ─── SIGNUP ───────────────────────────────────────────────────
@@ -455,14 +469,27 @@ async function handleSignup(){
 // ─── INIT APP ─────────────────────────────────────────────────
 async function initApp(user){
   currentUser=user;
+  // Try to load restaurant profile
   const {data,error}=await sb.from('restaurants').select('*').eq('id',user.id).single();
-  if(error||!data){showAuthError('Could not load restaurant profile. Please try logging in again.');return;}
-  currentRestaurant=data;
+  if(error||!data){
+    // Profile missing — create one automatically
+    const restName=user.email.split('@')[0].replace(/[^a-z0-9]/gi,' ');
+    const slug=user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const {data:newRest,error:insertError}=await sb.from('restaurants')
+      .insert({id:user.id,name:restName,email:user.email,slug:slug+'-'+Date.now().toString().slice(-4)})
+      .select().single();
+    if(insertError||!newRest){
+      showAuthError('Profile error: '+(error?.message||insertError?.message||'unknown')+'. Please contact support.');
+      return;
+    }
+    currentRestaurant=newRest;
+  } else {
+    currentRestaurant=data;
+  }
   document.getElementById('authScreen').style.display='none';
   document.getElementById('appScreen').style.display='flex';
-  document.getElementById('sidebarRestName').textContent=data.name;
+  document.getElementById('sidebarRestName').textContent=currentRestaurant.name;
   document.getElementById('sidebarEmail').textContent=user.email;
-  generateQr();
   await loadOrders();
   await loadMenu();
   await loadPayments();
@@ -487,7 +514,7 @@ function showPage(page,el){
   if(page==='orders')loadOrders();
   if(page==='payments')loadPayments();
   if(page==='menu')loadMenu();
-  if(page==='qr')setTimeout(generateQr,100);
+  if(page==='qr'){setTimeout(generateQr,150);}
 }
 
 // ─── ORDERS ───────────────────────────────────────────────────
@@ -674,90 +701,55 @@ async function loadPayments(){
 }
 
 // ─── QR CODE ──────────────────────────────────────────────────
-function makeQrDataUrl(text,size){
-  return new Promise(resolve=>{
-    const canvas=document.createElement('canvas');
-    canvas.width=size;canvas.height=size;
-    try{
-      QRCode.toCanvas(canvas,text,{width:size,margin:2,color:{dark:'#0F1117',light:'#FFFFFF'}},err=>{
-        if(err){
-          // fallback: use QR API service
-          const img=new Image();
-          img.crossOrigin='anonymous';
-          img.onload=()=>{
-            const ctx=canvas.getContext('2d');
-            ctx.drawImage(img,0,0,size,size);
-            resolve(canvas.toDataURL());
-          };
-          img.onerror=()=>resolve(null);
-          img.src='https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent(text)+'&color=0F1117&bgcolor=FFFFFF&margin=10';
-        } else {
-          resolve(canvas.toDataURL());
-        }
-      });
-    } catch(e){
-      resolve('https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&data='+encodeURIComponent(text)+'&color=0F1117&bgcolor=FFFFFF&margin=10');
-    }
-  });
-}
-
-async function generateQr(){
-  if(!currentRestaurant)return;
+function generateQr(){
+  if(!currentRestaurant){return;}
   const grid=document.getElementById('qrTablesGrid');
-  if(!grid)return;
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem">Generating QR codes...</div>';
-  const BASE='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug;
-  const cards=[];
+  if(!grid){return;}
+  const slug=currentRestaurant.slug;
+  const BASE='https://orderly-app-henna.vercel.app/customer-menu.html?r='+slug;
+  let html='';
   for(let t=1;t<=10;t++){
     const url=BASE+'&table='+t;
-    const card=document.createElement('div');
-    card.style.cssText='background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center';
-    card.id='qr-card-'+t;
-    card.innerHTML=
-      '<div style="font-family:Syne,sans-serif;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.75rem">Table '+t+'</div>'+
-      '<div id="qr-img-wrap-'+t+'" style="display:flex;justify-content:center;margin-bottom:0.75rem"><img id="qr-img-'+t+'" width="160" height="160" style="border-radius:8px;display:block" alt="QR Table '+t+'"></div>'+
-      '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:1rem;font-weight:600">Table '+t+'</div>'+
-      '<div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap">'+
-        '<a id="qr-dl-'+t+'" download="table-'+t+'-qr.png" style="background:var(--accent);color:#fff;border:none;padding:0.4rem 0.85rem;border-radius:7px;font-size:0.7rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif;text-decoration:none">Download</a>'+
-        '<button onclick="window.open(''+url+'','_blank')" style="background:var(--light);color:var(--brand);border:none;padding:0.4rem 0.85rem;border-radius:7px;font-size:0.7rem;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Preview</button>'+
+    const qrApiUrl='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=10&format=svg';
+    const dlUrl='https://api.qrserver.com/v1/create-qr-code/?size=500x500&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=20&format=png';
+    html+=
+      '<div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center">'+
+        '<div style="font-family:Syne,sans-serif;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:0.85rem">Table '+t+'</div>'+
+        '<img src="'+qrApiUrl+'" width="160" height="160" alt="QR Table '+t+'" style="border-radius:8px;border:1px solid var(--border);display:block;margin:0 auto" onerror="this.style.display='none'">'+
+        '<div style="font-size:0.7rem;font-weight:600;color:var(--brand);margin:0.75rem 0 1rem">Table '+t+'</div>'+
+        '<div style="display:flex;gap:0.5rem;justify-content:center">'+
+          '<a href="'+dlUrl+'" download="table-'+t+'.png" target="_blank" style="background:var(--accent);color:#fff;padding:0.4rem 0.9rem;border-radius:7px;font-size:0.7rem;font-weight:500;text-decoration:none;font-family:DM Sans,sans-serif">Download</a>'+
+          '<a href="'+url+'" target="_blank" style="background:var(--light);color:var(--brand);padding:0.4rem 0.9rem;border-radius:7px;font-size:0.7rem;font-weight:500;text-decoration:none;font-family:DM Sans,sans-serif">Preview</a>'+
+        '</div>'+
       '</div>';
-    cards.push({card,url,t});
   }
-  grid.innerHTML='';
-  cards.forEach(({card})=>grid.appendChild(card));
-  // Now render QRs using img tags with QR API (most reliable)
-  for(const {url,t} of cards){
-    const imgSrc='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=10&format=png';
-    const img=document.getElementById('qr-img-'+t);
-    if(img){img.src=imgSrc;img.onerror=()=>{img.alt='QR failed to load';};}
-    const dlLink=document.getElementById('qr-dl-'+t);
-    if(dlLink){dlLink.href='https://api.qrserver.com/v1/create-qr-code/?size=400x400&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=20&format=png';}
-  }
-}
-
-function downloadTableQr(tableNum){
-  const url='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug+'&table='+tableNum;
-  const link=document.createElement('a');
-  link.href='https://api.qrserver.com/v1/create-qr-code/?size=400x400&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=20&format=png';
-  link.download='table-'+tableNum+'-qr.png';
-  link.target='_blank';
-  link.click();
-  showToast('Table '+tableNum+' QR downloading...','success');
+  grid.innerHTML=html;
 }
 
 function downloadAllQr(){
+  if(!currentRestaurant)return;
+  const slug=currentRestaurant.slug;
+  const BASE='https://orderly-app-henna.vercel.app/customer-menu.html?r='+slug;
   for(let t=1;t<=10;t++){
-    setTimeout(()=>downloadTableQr(t),t*400);
+    const url=BASE+'&table='+t;
+    const dlUrl='https://api.qrserver.com/v1/create-qr-code/?size=500x500&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=20&format=png';
+    setTimeout(()=>{
+      const a=document.createElement('a');
+      a.href=dlUrl;a.download='table-'+t+'.png';a.target='_blank';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+    },t*350);
   }
-  showToast('Downloading all 10 QR codes...','success',5000);
+  showToast('Downloading 10 QR codes...','success',5000);
 }
 
 function copyLink(){
+  if(!currentRestaurant)return;
   const url='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug+'&table=1';
   navigator.clipboard.writeText(url).then(()=>showToast('Link copied','success'));
 }
 
 function openCustomerPage(){
+  if(!currentRestaurant)return;
   window.open('https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug+'&table=1','_blank');
 }
 
