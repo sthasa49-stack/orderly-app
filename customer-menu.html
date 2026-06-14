@@ -292,8 +292,26 @@ function showError(){
 }
 
 async function loadMenu(){
-  const {data}=await sb.from('menu_items').select('*').eq('restaurant_id',restaurant.id).order('category').order('name');
+  // Try with available filter first (anon policy requires it)
+  const {data,error}=await sb.from('menu_items')
+    .select('*')
+    .eq('restaurant_id',restaurant.id)
+    .eq('available',true)
+    .order('category')
+    .order('name');
+  if(error){
+    console.error('Menu load error:',error);
+    document.getElementById('menuContent').innerHTML=
+      '<div style="text-align:center;padding:3rem;color:var(--muted)">Could not load menu: '+error.message+'</div>';
+    return;
+  }
   menuItems=data||[];
+  if(!menuItems.length){
+    document.getElementById('menuContent').innerHTML=
+      '<div style="text-align:center;padding:3rem;color:var(--muted)"><div style="font-size:2rem;margin-bottom:1rem">🍽️</div><div>No menu items available right now.</div><div style="font-size:0.78rem;margin-top:0.5rem">Please check back soon.</div></div>';
+    document.getElementById('catBar').innerHTML='';
+    return;
+  }
   renderCategories();
   renderMenu();
 }
