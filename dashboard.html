@@ -379,39 +379,47 @@ body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text
 
 <script>
 const SUPABASE_URL='https://nnujtfziynkecnmyoqwj.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5udWp0ZnppeW5rZWNubXlvcXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMDk4MTIsImV4cCI6MjA5NTc4NTgxMn0.3CrBL09oLUIk6wtLiPJQb2LN2Kl4wz0I4kENGE4hM8U';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5udWp0ZnppeW5rZWNubXlvcXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMDk4MTIsImV4cCI6MjA5NTc4NTgxMn0.3CrBL09oLUIk6wtLiPJQb2LN2Kl4wz0I4kENGE4hM8U';
 const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON);
 
 let currentUser=null,currentRestaurant=null,ordersInterval=null;
 
 const SAMPLE_MENU=[
-  {name:'Margherita Pizza',description:'Classic tomato base, fresh mozzarella, fresh basil and extra virgin olive oil',price:14.90,category:'Mains',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600&q=80'},
-  {name:'Grilled Chicken Burger',description:'Chargrilled chicken breast, lettuce, tomato, pickles and chipotle mayo on a brioche bun',price:16.50,category:'Mains',img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80'},
-  {name:'Spaghetti Bolognese',description:'Slow-cooked beef and pork ragu, San Marzano tomatoes, aged Parmigiano Reggiano',price:18.00,category:'Mains',img:'https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=600&q=80'},
-  {name:'Grilled Salmon',description:'Atlantic salmon fillet, lemon butter sauce, seasonal vegetables and baby potatoes',price:24.00,category:'Mains',img:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80'},
-  {name:'Caesar Salad',description:'Cos lettuce, house-made Caesar dressing, shaved parmesan, croutons and crispy bacon',price:13.50,category:'Starters',img:'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=600&q=80'},
-  {name:'Garlic Bread',description:'Toasted sourdough with roasted garlic butter and fresh parsley',price:7.50,category:'Starters',img:'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=600&q=80'},
-  {name:'Tomato Soup',description:'Roasted tomato and basil soup served with crusty sourdough bread',price:10.00,category:'Starters',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80'},
-  {name:'Chicken Wings',description:'Crispy fried wings tossed in buffalo sauce, served with blue cheese dip',price:14.00,category:'Starters',img:'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=600&q=80'},
-  {name:'French Fries',description:'Golden crispy fries seasoned with sea salt, served with tomato sauce and aioli',price:6.50,category:'Sides',img:'https://images.unsplash.com/photo-1576107232684-1279f390859f?w=600&q=80'},
-  {name:'Onion Rings',description:'Beer battered onion rings with smoky BBQ dipping sauce',price:7.00,category:'Sides',img:'https://images.unsplash.com/photo-1639024471283-03518883512d?w=600&q=80'},
-  {name:'Chocolate Lava Cake',description:'Warm dark chocolate fondant with a molten centre, served with vanilla bean ice cream',price:11.00,category:'Desserts',img:'https://images.unsplash.com/photo-1617305855058-336d24456869?w=600&q=80'},
-  {name:'New York Cheesecake',description:'Baked vanilla cheesecake with berry compote and fresh whipped cream',price:10.50,category:'Desserts',img:'https://images.unsplash.com/photo-1567171466295-4afa63d45416?w=600&q=80'},
-  {name:'Soft Drink',description:'Coke, Diet Coke, Lemonade, Orange Juice or Sparkling Water — your choice',price:4.50,category:'Drinks',img:'https://images.unsplash.com/photo-1581006852262-e4307cf6283a?w=600&q=80'},
-  {name:'Flat White',description:'Double ristretto with silky steamed whole milk — made to order',price:5.00,category:'Drinks',img:'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=600&q=80'},
-  {name:'Fresh Juice',description:'Orange, apple, watermelon or green juice — freshly pressed daily',price:6.00,category:'Drinks',img:'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=600&q=80'},
+  {name:'Margherita Pizza',description:'Classic tomato base, fresh mozzarella and basil',price:14.90,category:'Mains',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=70'},
+  {name:'Grilled Chicken Burger',description:'Chargrilled chicken, lettuce, tomato, chipotle mayo on brioche',price:16.50,category:'Mains',img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=70'},
+  {name:'Spaghetti Bolognese',description:'Slow-cooked beef ragu, San Marzano tomatoes, parmesan',price:18.00,category:'Mains',img:'https://images.unsplash.com/photo-1598866594230-a7c12756260f?w=400&q=70'},
+  {name:'Grilled Salmon',description:'Atlantic salmon, lemon butter sauce, seasonal vegetables',price:24.00,category:'Mains',img:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=70'},
+  {name:'Caesar Salad',description:'Cos lettuce, Caesar dressing, parmesan, croutons, bacon',price:13.50,category:'Starters',img:'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&q=70'},
+  {name:'Garlic Bread',description:'Toasted sourdough with roasted garlic butter and parsley',price:7.50,category:'Starters',img:'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=400&q=70'},
+  {name:'Tomato Soup',description:'Roasted tomato and basil soup with crusty bread',price:10.00,category:'Starters',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=70'},
+  {name:'Chicken Wings',description:'Crispy wings in buffalo sauce with blue cheese dip',price:14.00,category:'Starters',img:'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=400&q=70'},
+  {name:'French Fries',description:'Golden crispy fries with sea salt, tomato sauce and aioli',price:6.50,category:'Sides',img:'https://images.unsplash.com/photo-1576107232684-1279f390859f?w=400&q=70'},
+  {name:'Onion Rings',description:'Beer battered onion rings with smoky BBQ sauce',price:7.00,category:'Sides',img:'https://images.unsplash.com/photo-1639024471283-03518883512d?w=400&q=70'},
+  {name:'Chocolate Lava Cake',description:'Warm dark chocolate fondant with vanilla ice cream',price:11.00,category:'Desserts',img:'https://images.unsplash.com/photo-1617305855058-336d24456869?w=400&q=70'},
+  {name:'New York Cheesecake',description:'Baked cheesecake with berry compote and whipped cream',price:10.50,category:'Desserts',img:'https://images.unsplash.com/photo-1567171466295-4afa63d45416?w=400&q=70'},
+  {name:'Soft Drink',description:'Coke, Diet Coke, Lemonade, OJ or Sparkling Water',price:4.50,category:'Drinks',img:'https://images.unsplash.com/photo-1581006852262-e4307cf6283a?w=400&q=70'},
+  {name:'Flat White',description:'Double ristretto with silky steamed whole milk',price:5.00,category:'Drinks',img:'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?w=400&q=70'},
+  {name:'Fresh Juice',description:'Orange, apple or watermelon — freshly pressed daily',price:6.00,category:'Drinks',img:'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&q=70'},
 ];
 
-// ─── TOAST ───────────────────────────────────────────────────
-function showToast(msg,type='',duration=3000){
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg,type,duration=3000){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast '+(type||'');
+  t.textContent=msg;
+  t.className='toast '+(type||'');
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),duration);
 }
 
-// ─── AUTH TABS ────────────────────────────────────────────────
+// ── AUTH ERROR ────────────────────────────────────────────────
+function showAuthError(msg){
+  const el=document.getElementById('authError');
+  el.textContent=msg;
+  el.style.display='block';
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────
 function switchTab(tab){
   const isLogin=tab==='login';
   document.getElementById('tabLogin').classList.toggle('active',isLogin);
@@ -423,69 +431,75 @@ function switchTab(tab){
   document.getElementById('authError').style.display='none';
 }
 
-function showAuthError(msg){
-  const el=document.getElementById('authError');
-  el.textContent=msg;el.style.display='block';
-}
-
-// ─── LOGIN ────────────────────────────────────────────────────
+// ── LOGIN ─────────────────────────────────────────────────────
 async function handleLogin(){
   const email=document.getElementById('loginEmail').value.trim();
   const password=document.getElementById('loginPassword').value;
+  document.getElementById('authError').style.display='none';
   if(!email||!password){showAuthError('Please enter your email and password.');return;}
   const btn=document.getElementById('loginBtn');
   btn.textContent='Signing in...';btn.disabled=true;
-  document.getElementById('authError').style.display='none';
   try{
     const {data,error}=await sb.auth.signInWithPassword({email,password});
-    btn.textContent='Sign in to dashboard';btn.disabled=false;
-    if(error){showAuthError('Login failed: '+error.message);return;}
-    if(!data||!data.user){showAuthError('No user returned. Please try again.');return;}
+    if(error){showAuthError('Login failed: '+error.message);btn.textContent='Sign in to dashboard';btn.disabled=false;return;}
+    if(!data?.user){showAuthError('Login returned no user. Please try again.');btn.textContent='Sign in to dashboard';btn.disabled=false;return;}
+    btn.textContent='Loading dashboard...';
     await initApp(data.user);
   }catch(e){
+    showAuthError('Error: '+e.message);
     btn.textContent='Sign in to dashboard';btn.disabled=false;
-    showAuthError('Unexpected error: '+e.message);
   }
 }
 
-// ─── SIGNUP ───────────────────────────────────────────────────
+// ── SIGNUP ────────────────────────────────────────────────────
 async function handleSignup(){
   const restaurant=document.getElementById('signupRestaurant').value.trim();
   const email=document.getElementById('signupEmail').value.trim();
   const password=document.getElementById('signupPassword').value;
+  document.getElementById('authError').style.display='none';
   if(!restaurant||!email||!password){showAuthError('Please fill in all fields.');return;}
   if(password.length<8){showAuthError('Password must be at least 8 characters.');return;}
   const btn=document.getElementById('signupBtn');
   btn.textContent='Creating account...';btn.disabled=true;
-  const {data,error}=await sb.auth.signUp({email,password});
-  if(error){showAuthError(error.message);btn.textContent='Create restaurant account';btn.disabled=false;return;}
-  const slug=restaurant.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  const {error:restError}=await sb.from('restaurants').insert({id:data.user.id,name:restaurant,email,slug});
-  if(restError){showAuthError('Account created but profile failed: '+restError.message);btn.textContent='Create restaurant account';btn.disabled=false;return;}
-  btn.textContent='Create restaurant account';btn.disabled=false;
-  await initApp(data.user);
+  try{
+    const {data,error}=await sb.auth.signUp({email,password});
+    if(error){showAuthError(error.message);btn.textContent='Create restaurant account';btn.disabled=false;return;}
+    if(!data?.user){showAuthError('Signup failed — no user returned.');btn.textContent='Create restaurant account';btn.disabled=false;return;}
+    const slug=restaurant.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const {error:restErr}=await sb.from('restaurants').insert({id:data.user.id,name:restaurant,email,slug:slug+'-'+Math.random().toString(36).slice(2,6)});
+    if(restErr&&!restErr.message.includes('duplicate')){
+      showAuthError('Account created but profile failed: '+restErr.message);
+      btn.textContent='Create restaurant account';btn.disabled=false;return;
+    }
+    btn.textContent='Loading dashboard...';
+    await initApp(data.user);
+  }catch(e){
+    showAuthError('Error: '+e.message);
+    btn.textContent='Create restaurant account';btn.disabled=false;
+  }
 }
 
-// ─── INIT APP ─────────────────────────────────────────────────
+// ── INIT APP ──────────────────────────────────────────────────
 async function initApp(user){
   currentUser=user;
-  // Try to load restaurant profile
+  // Load restaurant profile
   const {data,error}=await sb.from('restaurants').select('*').eq('id',user.id).single();
   if(error||!data){
-    // Profile missing — create one automatically
-    const restName=user.email.split('@')[0].replace(/[^a-z0-9]/gi,' ');
-    const slug=user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]+/g,'-');
-    const {data:newRest,error:insertError}=await sb.from('restaurants')
-      .insert({id:user.id,name:restName,email:user.email,slug:slug+'-'+Date.now().toString().slice(-4)})
-      .select().single();
-    if(insertError||!newRest){
-      showAuthError('Profile error: '+(error?.message||insertError?.message||'unknown')+'. Please contact support.');
+    // Auto-create profile if missing
+    const name=user.email.split('@')[0].replace(/[._-]/g,' ').replace(/\w/g,c=>c.toUpperCase());
+    const slug=user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Math.random().toString(36).slice(2,5);
+    const {data:created,error:createErr}=await sb.from('restaurants').insert({id:user.id,name,email:user.email,slug}).select().single();
+    if(createErr||!created){
+      document.getElementById('loginBtn').textContent='Sign in to dashboard';
+      document.getElementById('loginBtn').disabled=false;
+      showAuthError('Could not load profile: '+(error?.message||createErr?.message||'unknown error'));
       return;
     }
-    currentRestaurant=newRest;
+    currentRestaurant=created;
   } else {
     currentRestaurant=data;
   }
+  // Show app
   document.getElementById('authScreen').style.display='none';
   document.getElementById('appScreen').style.display='flex';
   document.getElementById('sidebarRestName').textContent=currentRestaurant.name;
@@ -505,7 +519,7 @@ async function handleLogout(){
   document.getElementById('appScreen').style.display='none';
 }
 
-// ─── NAVIGATION ───────────────────────────────────────────────
+// ── NAVIGATION ────────────────────────────────────────────────
 function showPage(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -514,10 +528,10 @@ function showPage(page,el){
   if(page==='orders')loadOrders();
   if(page==='payments')loadPayments();
   if(page==='menu')loadMenu();
-  if(page==='qr'){setTimeout(generateQr,150);}
+  if(page==='qr')setTimeout(generateQr,150);
 }
 
-// ─── ORDERS ───────────────────────────────────────────────────
+// ── ORDERS ────────────────────────────────────────────────────
 async function loadOrders(){
   if(!currentRestaurant)return;
   const {data:orders}=await sb.from('orders').select('*,order_items(*)').eq('restaurant_id',currentRestaurant.id).neq('status','paid').order('created_at',{ascending:false});
@@ -531,7 +545,7 @@ async function loadOrders(){
   document.getElementById('statRevenue').textContent='$'+revenue.toFixed(2);
   const grid=document.getElementById('docketGrid');
   if(!orders||!orders.length){
-    grid.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div style="font-weight:500">No active orders</div><div style="font-size:0.78rem;margin-top:0.5rem">Orders appear here when customers scan your QR code and order</div></div>';
+    grid.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div style="font-weight:500">No active orders</div><div style="font-size:0.78rem;margin-top:0.5rem">Orders appear here when customers scan your QR code</div></div>';
     return;
   }
   const nextMap={new:'preparing',preparing:'ready',ready:'paid'};
@@ -547,6 +561,8 @@ async function loadOrders(){
         </div>
       </div>
       ${o.customer_name&&o.customer_name!=='Guest'?`<div style="font-size:0.76rem;color:var(--muted);margin-bottom:6px">👤 ${o.customer_name}${o.table_number?' · Table '+o.table_number:''}</div>`:''}
+      ${o.table_number&&(!o.customer_name||o.customer_name==='Guest')?`<div style="font-size:0.76rem;color:var(--muted);margin-bottom:6px">🪑 Table ${o.table_number}</div>`:''}
+      ${o.payment_method?`<div style="font-size:0.7rem;color:var(--muted);margin-bottom:6px">💳 ${o.payment_method==='cash'?'Pay at Counter':'Pay at Table'}</div>`:''}
       <div class="docket-items">
         ${(o.order_items||[]).map(i=>`<div class="docket-item"><span>${i.name}</span><span class="docket-item-qty">x${i.quantity} — $${(i.price*i.quantity).toFixed(2)}</span></div>`).join('')}
       </div>
@@ -573,7 +589,7 @@ async function markPaid(id){
   loadOrders();loadPayments();
 }
 
-// ─── MENU ─────────────────────────────────────────────────────
+// ── MENU ──────────────────────────────────────────────────────
 async function loadMenu(){
   if(!currentRestaurant)return;
   const {data,error}=await sb.from('menu_items').select('*').eq('restaurant_id',currentRestaurant.id).order('category').order('name');
@@ -583,15 +599,12 @@ async function loadMenu(){
     return;
   }
   if(!data||!data.length){
-    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div style="font-weight:500;margin-bottom:0.5rem">No menu items yet</div><div style="font-size:0.78rem;margin-bottom:1rem">Click "Load sample menu" to get 15 real dishes instantly, then edit as needed.</div></div>`;
+    grid.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div style="font-weight:500;margin-bottom:0.5rem">No menu items yet</div><div style="font-size:0.78rem;margin-bottom:1.25rem;color:var(--muted)">Click "Load sample menu" to get 15 real dishes instantly.</div></div>`;
     return;
   }
   grid.innerHTML=data.map(item=>`
     <div class="menu-card">
-      ${item.img
-        ?`<img class="menu-card-img" src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">`
-        :`<div class="menu-card-img-placeholder">🍽️</div>`
-      }
+      ${item.img?`<img class="menu-card-img" src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">`:`<div class="menu-card-img-placeholder">🍽️</div>`}
       <div class="menu-card-body">
         <div class="menu-card-top">
           <div class="menu-name">${item.name}</div>
@@ -605,8 +618,7 @@ async function loadMenu(){
           <button class="btn-del" onclick="deleteItem('${item.id}')">Remove</button>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 async function seedSampleMenu(){
@@ -616,8 +628,8 @@ async function seedSampleMenu(){
   const items=SAMPLE_MENU.map(i=>({...i,restaurant_id:currentRestaurant.id,available:true}));
   const {error}=await sb.from('menu_items').insert(items);
   btn.textContent='🍕 Load sample menu';btn.disabled=false;
-  if(error){showToast('Error: '+error.message,'error',5000);console.error(error);return;}
-  showToast('15 sample items loaded — edit as needed','success');
+  if(error){showToast('Error: '+error.message,'error',5000);return;}
+  showToast('15 items loaded','success');
   loadMenu();
 }
 
@@ -633,47 +645,40 @@ function openAddModal(){
 async function addMenuItem(){
   const name=document.getElementById('itemName').value.trim();
   const description=document.getElementById('itemDesc').value.trim();
-  const priceVal=document.getElementById('itemPrice').value;
-  const price=parseFloat(priceVal);
+  const price=parseFloat(document.getElementById('itemPrice').value);
   const category=document.getElementById('itemCategory').value;
   const img=document.getElementById('itemImg').value.trim();
   const errEl=document.getElementById('modalError');
   errEl.style.display='none';
   if(!name){errEl.textContent='Item name is required.';errEl.style.display='block';return;}
-  if(!priceVal||isNaN(price)||price<=0){errEl.textContent='Please enter a valid price greater than 0.';errEl.style.display='block';return;}
+  if(!price||isNaN(price)||price<=0){errEl.textContent='Please enter a valid price.';errEl.style.display='block';return;}
   if(!currentRestaurant?.id){errEl.textContent='Session expired — please log out and back in.';errEl.style.display='block';return;}
   const btn=document.getElementById('saveBtn');
   btn.textContent='Saving...';btn.disabled=true;
   const payload={restaurant_id:currentRestaurant.id,name,price,category,available:true};
   if(description)payload.description=description;
   if(img)payload.img=img;
-  const {data,error}=await sb.from('menu_items').insert([payload]).select();
+  const {error}=await sb.from('menu_items').insert([payload]).select();
   btn.textContent='Save item';btn.disabled=false;
-  if(error){
-    console.error('Supabase insert error:',error);
-    errEl.textContent='Save failed: '+error.message;
-    errEl.style.display='block';
-    return;
-  }
+  if(error){errEl.textContent='Save failed: '+error.message;errEl.style.display='block';return;}
   document.getElementById('addModal').style.display='none';
-  showToast('Item added to menu','success');
+  showToast('Item added','success');
   loadMenu();
 }
 
 async function toggleItem(id,available){
-  const {error}=await sb.from('menu_items').update({available}).eq('id',id);
-  if(error){showToast('Update failed: '+error.message,'error');return;}
-  showToast(available?'Item is now live on menu':'Item hidden from menu');
+  await sb.from('menu_items').update({available}).eq('id',id);
+  showToast(available?'Item is live':'Item hidden');
   loadMenu();
 }
 
 async function deleteItem(id){
-  if(!confirm('Remove this item from your menu?'))return;
+  if(!confirm('Remove this item?'))return;
   await sb.from('menu_items').delete().eq('id',id);
   showToast('Item removed');loadMenu();
 }
 
-// ─── PAYMENTS ─────────────────────────────────────────────────
+// ── PAYMENTS ──────────────────────────────────────────────────
 async function loadPayments(){
   if(!currentRestaurant)return;
   const today=new Date().toISOString().split('T')[0];
@@ -683,11 +688,10 @@ async function loadPayments(){
   const unpaid=all.filter(o=>!o.paid);
   const paidTotal=paid.reduce((s,o)=>s+parseFloat(o.total||0),0);
   const unpaidTotal=unpaid.reduce((s,o)=>s+parseFloat(o.total||0),0);
-  const allTotal=paidTotal+unpaidTotal;
   document.getElementById('payToday').textContent='$'+paidTotal.toFixed(2);
   document.getElementById('payOutstanding').textContent='$'+unpaidTotal.toFixed(2);
   document.getElementById('payCount').textContent=all.length;
-  document.getElementById('payAvg').textContent=all.length?'$'+(allTotal/all.length).toFixed(2):'$0';
+  document.getElementById('payAvg').textContent=all.length?'$'+((paidTotal+unpaidTotal)/all.length).toFixed(2):'$0';
   const tbody=document.getElementById('paymentsBody');
   if(!all.length){tbody.innerHTML='<tr><td colspan="6" style="padding:3rem;text-align:center;color:var(--muted)">No orders today</td></tr>';return;}
   tbody.innerHTML=all.map(o=>`<tr>
@@ -700,26 +704,25 @@ async function loadPayments(){
   </tr>`).join('');
 }
 
-// ─── QR CODE ──────────────────────────────────────────────────
+// ── QR CODE ───────────────────────────────────────────────────
 function generateQr(){
-  if(!currentRestaurant){return;}
+  if(!currentRestaurant)return;
   const grid=document.getElementById('qrTablesGrid');
-  if(!grid){return;}
-  const slug=currentRestaurant.slug;
-  const BASE='https://orderly-app-henna.vercel.app/customer-menu.html?r='+slug;
+  if(!grid)return;
+  const BASE='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug;
   let html='';
   for(let t=1;t<=10;t++){
     const url=BASE+'&table='+t;
-    const qrApiUrl='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=10&format=svg';
-    const dlUrl='https://api.qrserver.com/v1/create-qr-code/?size=500x500&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=20&format=png';
+    const qr='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=10&format=svg';
+    const dl='https://api.qrserver.com/v1/create-qr-code/?size=500x500&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=20&format=png';
     html+=
       '<div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.25rem;text-align:center">'+
         '<div style="font-family:Syne,sans-serif;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:0.85rem">Table '+t+'</div>'+
-        '<img src="'+qrApiUrl+'" width="160" height="160" alt="QR Table '+t+'" style="border-radius:8px;border:1px solid var(--border);display:block;margin:0 auto" onerror="this.style.display='none'">'+
-        '<div style="font-size:0.7rem;font-weight:600;color:var(--brand);margin:0.75rem 0 1rem">Table '+t+'</div>'+
+        '<img src="'+qr+'" width="160" height="160" style="border-radius:8px;border:1px solid var(--border);display:block;margin:0 auto" alt="QR Table '+t+'">'+
+        '<div style="font-size:0.72rem;font-weight:600;color:var(--brand);margin:0.75rem 0 1rem">Table '+t+'</div>'+
         '<div style="display:flex;gap:0.5rem;justify-content:center">'+
-          '<a href="'+dlUrl+'" download="table-'+t+'.png" target="_blank" style="background:var(--accent);color:#fff;padding:0.4rem 0.9rem;border-radius:7px;font-size:0.7rem;font-weight:500;text-decoration:none;font-family:DM Sans,sans-serif">Download</a>'+
-          '<a href="'+url+'" target="_blank" style="background:var(--light);color:var(--brand);padding:0.4rem 0.9rem;border-radius:7px;font-size:0.7rem;font-weight:500;text-decoration:none;font-family:DM Sans,sans-serif">Preview</a>'+
+          '<a href="'+dl+'" download="table-'+t+'.png" target="_blank" style="background:var(--accent);color:#fff;padding:0.4rem 0.9rem;border-radius:7px;font-size:0.7rem;font-weight:500;text-decoration:none">Download</a>'+
+          '<a href="'+url+'" target="_blank" style="background:var(--light);color:var(--brand);padding:0.4rem 0.9rem;border-radius:7px;font-size:0.7rem;font-weight:500;text-decoration:none">Preview</a>'+
         '</div>'+
       '</div>';
   }
@@ -728,32 +731,20 @@ function generateQr(){
 
 function downloadAllQr(){
   if(!currentRestaurant)return;
-  const slug=currentRestaurant.slug;
-  const BASE='https://orderly-app-henna.vercel.app/customer-menu.html?r='+slug;
+  const BASE='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug;
   for(let t=1;t<=10;t++){
     const url=BASE+'&table='+t;
-    const dlUrl='https://api.qrserver.com/v1/create-qr-code/?size=500x500&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=20&format=png';
+    const dl='https://api.qrserver.com/v1/create-qr-code/?size=500x500&data='+encodeURIComponent(url)+'&color=0F1117&bgcolor=FFFFFF&margin=20&format=png';
     setTimeout(()=>{
       const a=document.createElement('a');
-      a.href=dlUrl;a.download='table-'+t+'.png';a.target='_blank';
+      a.href=dl;a.download='table-'+t+'.png';a.target='_blank';
       document.body.appendChild(a);a.click();document.body.removeChild(a);
-    },t*350);
+    },t*400);
   }
-  showToast('Downloading 10 QR codes...','success',5000);
+  showToast('Downloading all 10 QR codes...','success',5000);
 }
 
-function copyLink(){
-  if(!currentRestaurant)return;
-  const url='https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug+'&table=1';
-  navigator.clipboard.writeText(url).then(()=>showToast('Link copied','success'));
-}
-
-function openCustomerPage(){
-  if(!currentRestaurant)return;
-  window.open('https://orderly-app-henna.vercel.app/customer-menu.html?r='+currentRestaurant.slug+'&table=1','_blank');
-}
-
-// ─── BOOT ─────────────────────────────────────────────────────
+// ── BOOT ──────────────────────────────────────────────────────
 sb.auth.getSession().then(({data:{session}})=>{
   if(session)initApp(session.user);
 });
